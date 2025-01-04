@@ -5,6 +5,9 @@ import {
   Users,
   Settings,
   HelpCircle,
+  FileContract,
+  DollarSign,
+  Calendar,
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,14 +33,29 @@ const menuItems = [
     url: "/time-tracking",
   },
   {
+    title: "Contracts",
+    icon: FileContract,
+    url: "/contracts",
+  },
+  {
+    title: "Leads",
+    icon: Users,
+    url: "/leads",
+  },
+  {
+    title: "Expenses",
+    icon: DollarSign,
+    url: "/expenses",
+  },
+  {
+    title: "Meetings",
+    icon: Calendar,
+    url: "/meetings",
+  },
+  {
     title: "Invoices",
     icon: FileText,
     url: "/invoices",
-  },
-  {
-    title: "Clients",
-    icon: Users,
-    url: "/clients",
   },
   {
     title: "Settings",
