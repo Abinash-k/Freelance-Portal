@@ -5,7 +5,7 @@ import {
   Users,
   Settings,
   HelpCircle,
-  FileContract,
+  File,
   DollarSign,
   Calendar,
 } from "lucide-react";
@@ -13,8 +13,8 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -34,7 +34,7 @@ const menuItems = [
   },
   {
     title: "Contracts",
-    icon: FileContract,
+    icon: File,
     url: "/contracts",
   },
   {
