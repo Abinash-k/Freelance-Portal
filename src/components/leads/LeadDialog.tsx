@@ -67,10 +67,21 @@ export const LeadDialog = ({
 
   const onSubmit = async (data: LeadFormData) => {
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) throw new Error("No user found");
+
+      const leadData = {
+        ...data,
+        user_id: user.id,
+      };
+
       if (lead) {
         const { error } = await supabase
           .from("leads")
-          .update(data)
+          .update(leadData)
           .eq("id", lead.id);
 
         if (error) throw error;
@@ -80,7 +91,7 @@ export const LeadDialog = ({
           description: "The lead has been successfully updated.",
         });
       } else {
-        const { error } = await supabase.from("leads").insert([data]);
+        const { error } = await supabase.from("leads").insert([leadData]);
 
         if (error) throw error;
 

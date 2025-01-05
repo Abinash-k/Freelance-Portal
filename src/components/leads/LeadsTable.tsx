@@ -144,7 +144,10 @@ export const LeadsTable = ({ leads, onLeadUpdated }: LeadsTableProps) => {
         onLeadCreated={onLeadUpdated}
       />
 
-      <AlertDialog open={!!deletingLeadId} onOpenChange={setDeletingLeadId}>
+      <AlertDialog
+        open={!!deletingLeadId}
+        onOpenChange={(open: boolean) => !open && setDeletingLeadId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
