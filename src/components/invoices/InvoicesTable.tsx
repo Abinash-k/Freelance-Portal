@@ -23,7 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { InvoiceDialog } from "./InvoiceDialog";
 import { format } from "date-fns";
-import { FileDollarSign, FileText, Printer, Trash } from "lucide-react";
+import { CircleDollarSign, FileText, Printer, Trash } from "lucide-react";
 
 export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
   const [editingInvoice, setEditingInvoice] = useState<any>(null);

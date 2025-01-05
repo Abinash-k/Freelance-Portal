@@ -69,6 +69,8 @@ export const InvoiceDialog = ({
       const invoiceData = {
         ...data,
         user_id: user.id,
+        issue_date: format(data.issue_date, 'yyyy-MM-dd'),
+        due_date: format(data.due_date, 'yyyy-MM-dd'),
       };
 
       if (invoice) {
