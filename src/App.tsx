@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import LeadsPage from "./pages/leads";
+import InvoicesPage from "./pages/invoices";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <LeadsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/invoices"
+            element={
+              <ProtectedRoute>
+                <InvoicesPage />
               </ProtectedRoute>
             }
           />
