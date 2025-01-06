@@ -37,13 +37,11 @@ const ContractsPage = () => {
         onContractUpdated={refetch}
       />
 
-      {isCreateDialogOpen && (
-        <ContractDialog
-          open={isCreateDialogOpen}
-          onOpenChange={setIsCreateDialogOpen}
-          onContractCreated={refetch}
-        />
-      )}
+      <ContractDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onContractCreated={refetch}
+      />
     </div>
   );
 };
