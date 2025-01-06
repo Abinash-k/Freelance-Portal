@@ -44,6 +44,10 @@ export const MeetingDialog = ({ open, onOpenChange }: MeetingDialogProps) => {
     mutationFn: async (data: FormData) => {
       setIsCreatingMeet(true);
       try {
+        // Get the current user's ID
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("No user found");
+
         // Create Google Meet link (this would typically be done through a backend service)
         const meetLink = "https://meet.google.com/placeholder";
 
@@ -55,6 +59,7 @@ export const MeetingDialog = ({ open, onOpenChange }: MeetingDialogProps) => {
           attendees: data.attendees.split(",").map((email) => email.trim()),
           location: meetLink,
           status: "scheduled",
+          user_id: user.id, // Add the user_id here
         });
 
         if (error) throw error;
