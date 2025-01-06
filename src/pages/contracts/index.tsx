@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ContractsTable } from "@/components/contracts/ContractsTable";
+import { ContractDialog } from "@/components/contracts/ContractDialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FileText } from "lucide-react";

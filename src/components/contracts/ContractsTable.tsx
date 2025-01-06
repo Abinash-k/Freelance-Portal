@@ -112,7 +112,7 @@ Date:
       case "sent":
         return "secondary";
       case "signed":
-        return "success";
+        return "secondary";
       default:
         return "default";
     }
@@ -190,7 +190,10 @@ Date:
         />
       )}
 
-      <AlertDialog open={!!deletingContract} onOpenChange={setDeletingContract}>
+      <AlertDialog 
+        open={!!deletingContract} 
+        onOpenChange={(open) => setDeletingContract(open ? deletingContract : null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
