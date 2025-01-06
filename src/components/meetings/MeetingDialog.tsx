@@ -48,25 +48,23 @@ export const MeetingDialog = ({ open, onOpenChange }: MeetingDialogProps) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
-        // Create Google Meet link (this would typically be done through a backend service)
-        const meetLink = "https://meet.google.com/placeholder";
-
-        const { error } = await supabase.from("meetings").insert({
-          title: data.title,
-          description: data.description,
-          date: new Date(data.date).toISOString(),
-          duration: Number(data.duration),
-          attendees: data.attendees.split(",").map((email) => email.trim()),
-          location: meetLink,
-          status: "scheduled",
-          user_id: user.id, // Add the user_id here
+        // Call our edge function to create the meeting
+        const { data: meetingData, error } = await supabase.functions.invoke('create-meeting', {
+          body: {
+            title: data.title,
+            description: data.description,
+            date: new Date(data.date).toISOString(),
+            duration: Number(data.duration),
+            attendees: data.attendees.split(",").map((email) => email.trim()),
+            user_id: user.id,
+          },
         });
 
         if (error) throw error;
 
         toast({
           title: "Success",
-          description: "Meeting scheduled successfully",
+          description: "Meeting scheduled successfully. Invites have been sent.",
         });
 
         onOpenChange(false);
