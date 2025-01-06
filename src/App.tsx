@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import LeadsPage from "./pages/leads";
 import InvoicesPage from "./pages/invoices";
+import ContractsPage from "./pages/contracts";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <InvoicesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contracts"
+            element={
+              <ProtectedRoute>
+                <ContractsPage />
               </ProtectedRoute>
             }
           />
