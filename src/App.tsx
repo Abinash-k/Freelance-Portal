@@ -11,6 +11,7 @@ import SignIn from "./pages/SignIn";
 import LeadsPage from "./pages/leads";
 import InvoicesPage from "./pages/invoices";
 import ContractsPage from "./pages/contracts";
+import MeetingsPage from "./pages/meetings";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ContractsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meetings"
+            element={
+              <ProtectedRoute>
+                <MeetingsPage />
               </ProtectedRoute>
             }
           />
