@@ -35,37 +35,46 @@ async function sendEmailInvites(meetingDetails: {
   const { title, description, date, location, attendees } = meetingDetails;
   
   try {
-    console.log("Sending email invites to:", attendees);
-    const emailPromises = attendees.map(async (attendee) => {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: "meetings@yourdomain.com",
-          to: attendee,
-          subject: `Meeting Invitation: ${title}`,
-          html: `
-            <h2>You've been invited to a meeting</h2>
-            <p><strong>Title:</strong> ${title}</p>
-            <p><strong>Description:</strong> ${description}</p>
-            <p><strong>Date:</strong> ${new Date(date).toLocaleString()}</p>
-            <p><strong>Join Link:</strong> <a href="${location}">${location}</a></p>
-          `,
-        }),
-      });
+    console.log("Starting to send email invites to:", attendees);
+    
+    for (const attendee of attendees) {
+      try {
+        console.log(`Sending email to ${attendee}...`);
+        const res = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: "Meetings <onboarding@resend.dev>", // Using Resend's default sender
+            to: attendee,
+            subject: `Meeting Invitation: ${title}`,
+            html: `
+              <h2>You've been invited to a meeting</h2>
+              <p><strong>Title:</strong> ${title}</p>
+              <p><strong>Description:</strong> ${description}</p>
+              <p><strong>Date:</strong> ${new Date(date).toLocaleString()}</p>
+              <p><strong>Join Link:</strong> <a href="${location}">${location}</a></p>
+            `,
+          }),
+        });
 
-      if (!res.ok) {
-        throw new Error(`Failed to send email to ${attendee}`);
+        if (!res.ok) {
+          const errorData = await res.text();
+          throw new Error(`Resend API error: ${errorData}`);
+        }
+        
+        console.log(`Successfully sent email to ${attendee}`);
+      } catch (error) {
+        console.error(`Failed to send email to ${attendee}:`, error);
+        throw new Error(`Failed to send email to ${attendee}: ${error.message}`);
       }
-    });
+    }
 
-    await Promise.all(emailPromises);
     console.log("Successfully sent all email invites");
   } catch (error) {
-    console.error("Error sending email invites:", error);
+    console.error("Error in sendEmailInvites:", error);
     throw error;
   }
 }
