@@ -34,11 +34,6 @@ const SignIn = () => {
       if (event === "SIGNED_OUT") {
         setError(null);
       }
-
-      // Handle auth errors
-      if (event === "USER_DELETED" || event === "SIGNED_OUT") {
-        setError(null);
-      }
     });
 
     // Check URL parameters for error messages
