@@ -1,10 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { google } from "https://esm.sh/@googleapis/calendar@9.6.0";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const GOOGLE_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID");
-const GOOGLE_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,8 +18,9 @@ interface MeetingRequest {
   user_id: string;
 }
 
-async function createGoogleMeet(title: string, startTime: string, duration: number) {
-  // This is a simplified version. In production, you'd need to handle OAuth2 flow
+async function createGoogleMeet(title: string) {
+  // For now, we'll create a simple unique meeting ID
+  // In production, this should be integrated with Google Calendar API
   const meetingId = Math.random().toString(36).substring(7);
   return `https://meet.google.com/${meetingId}`;
 }
@@ -37,6 +35,7 @@ async function sendEmailInvites(meetingDetails: {
   const { title, description, date, location, attendees } = meetingDetails;
   
   try {
+    console.log("Sending email invites to:", attendees);
     const emailPromises = attendees.map(async (attendee) => {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -64,6 +63,7 @@ async function sendEmailInvites(meetingDetails: {
     });
 
     await Promise.all(emailPromises);
+    console.log("Successfully sent all email invites");
   } catch (error) {
     console.error("Error sending email invites:", error);
     throw error;
@@ -80,8 +80,11 @@ serve(async (req) => {
     const meetingRequest: MeetingRequest = await req.json();
     const { title, description, date, duration, attendees, user_id } = meetingRequest;
 
+    console.log("Creating meeting:", { title, date, attendees });
+
     // Create Google Meet link
-    const meetLink = await createGoogleMeet(title, date, duration);
+    const meetLink = await createGoogleMeet(title);
+    console.log("Created meet link:", meetLink);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
