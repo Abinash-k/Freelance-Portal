@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthError } from "@supabase/supabase-js";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -35,6 +34,11 @@ const SignIn = () => {
       if (event === "SIGNED_OUT") {
         setError(null);
       }
+
+      // Handle auth errors
+      if (event === "USER_DELETED" || event === "SIGNED_OUT") {
+        setError(null);
+      }
     });
 
     // Check URL parameters for error messages
@@ -42,19 +46,13 @@ const SignIn = () => {
     const errorDescription = params.get("error_description");
     if (errorDescription) {
       setError(errorDescription);
+      if (errorDescription.includes("Email not confirmed")) {
+        setError("Please check your email and click the verification link before signing in.");
+      }
     }
 
     return () => subscription.unsubscribe();
   }, [navigate, toast]);
-
-  const handleError = (error: AuthError) => {
-    console.error("Auth error:", error);
-    if (error.message.includes("Email not confirmed")) {
-      setError("Please check your email and click the verification link before signing in.");
-    } else {
-      setError(error.message);
-    }
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -75,7 +73,6 @@ const SignIn = () => {
           appearance={{ theme: ThemeSupa }}
           providers={[]}
           theme="light"
-          onError={handleError}
         />
       </div>
     </div>
