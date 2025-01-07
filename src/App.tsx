@@ -12,6 +12,7 @@ import LeadsPage from "./pages/leads";
 import InvoicesPage from "./pages/invoices";
 import ContractsPage from "./pages/contracts";
 import MeetingsPage from "./pages/meetings";
+import ExpensesPage from "./pages/expenses";
 
 const queryClient = new QueryClient();
 
@@ -87,6 +88,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <MeetingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/expenses"
+            element={
+              <ProtectedRoute>
+                <ExpensesPage />
               </ProtectedRoute>
             }
           />
