@@ -4,11 +4,58 @@ import { KPICards } from "@/components/dashboard/KPICards";
 import { ProjectsList } from "@/components/dashboard/ProjectsList";
 import { TimeTracker } from "@/components/dashboard/TimeTracker";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        console.log("Current user ID:", user.id);
+      }
+    };
+    getUserId();
+  }, []);
+
+  // Fetch user's contracts
+  const { data: contracts } = useQuery({
+    queryKey: ['contracts', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('contracts')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId
+  });
+
+  // Fetch user's invoices
+  const { data: invoices } = useQuery({
+    queryKey: ['invoices', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId
+  });
+
+  // Calculate KPI data based on user's data
   const kpiData = {
     totalRevenue: {
-      value: "$24,500",
+      value: `$${invoices?.reduce((sum, inv) => sum + Number(inv.amount), 0).toLocaleString() || '0'}`,
       change: "+12.5%",
       isPositive: true
     },
@@ -18,37 +65,29 @@ const Dashboard = () => {
       isPositive: false
     },
     pendingInvoices: {
-      value: "6",
+      value: invoices?.filter(inv => inv.status === 'pending')?.length.toString() || '0',
       change: "+8.1%",
       isPositive: true
     },
     activeProjects: {
-      value: "8",
+      value: contracts?.filter(contract => contract.status === 'active')?.length.toString() || '0',
       change: "+4.2%",
       isPositive: true
     }
   };
 
-  const projects = [
-    {
-      name: "Website Redesign",
-      client: "Tech Corp",
-      dueDate: "4/15/2024",
-      hoursLogged: "45h",
-      budget: "$12,000",
-      progress: 75,
-      status: "In Progress"
-    },
-    {
-      name: "Mobile App Development",
-      client: "StartUp Inc",
-      dueDate: "5/1/2024",
-      hoursLogged: "28h",
-      budget: "$20,000",
-      progress: 45,
-      status: "In Progress"
-    }
-  ];
+  // Format contracts for projects list
+  const projects = contracts?.map(contract => ({
+    name: contract.project_name,
+    client: contract.client_name,
+    dueDate: contract.end_date || 'Not set',
+    hoursLogged: "0h",
+    budget: `$${Number(contract.value).toLocaleString()}`,
+    progress: 0,
+    status: contract.status
+  })) || [];
+
+  console.log("Rendered dashboard with projects:", projects);
 
   return (
     <div className="min-h-screen bg-background">
