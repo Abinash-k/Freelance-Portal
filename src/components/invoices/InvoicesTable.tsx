@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,10 +22,11 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { InvoiceDialog } from "./InvoiceDialog";
 import { format } from "date-fns";
-import { FileText, Printer, Trash } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { InvoicePDFTemplate } from "./InvoicePDFTemplate";
 import { useQuery } from "@tanstack/react-query";
+import { getStatusColor } from "./utils";
+import { InvoiceActions } from "./InvoiceActions";
 
 export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
   const [editingInvoice, setEditingInvoice] = useState<any>(null);
@@ -43,9 +43,9 @@ export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
         .from("business_details")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== "PGRST116") throw error;
+      if (error) throw error;
       return data;
     },
   });
@@ -147,29 +147,11 @@ export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setEditingInvoice(invoice)}
-                    >
-                      <FileText className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => generateInvoicePDF(invoice)}
-                    >
-                      <Printer className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setDeletingInvoiceId(invoice.id)}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <InvoiceActions
+                    onEdit={() => setEditingInvoice(invoice)}
+                    onPrint={() => generateInvoicePDF(invoice)}
+                    onDelete={() => setDeletingInvoiceId(invoice.id)}
+                  />
                 </TableCell>
               </TableRow>
             ))}

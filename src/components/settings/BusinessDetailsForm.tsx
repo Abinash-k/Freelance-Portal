@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 interface BusinessDetailsFormData {
   business_name: string;
@@ -35,7 +36,7 @@ export const BusinessDetailsForm = () => {
         .from("business_details")
         .select("*")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== "PGRST116") throw error;
       return data;
@@ -71,8 +72,7 @@ export const BusinessDetailsForm = () => {
     }
   };
 
-  // Set form values when business details are loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (businessDetails) {
       form.reset(businessDetails);
     }
