@@ -11,7 +11,7 @@ import { format } from "date-fns";
 
 Font.register({
   family: "Dancing Script",
-  src: "https://fonts.gstatic.com/s/dancingscript/v25/If2RXTr6YS-zF4S-kcSWSVi_szLgiuE.ttf",
+  src: "https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap",
 });
 
 const styles = StyleSheet.create({
