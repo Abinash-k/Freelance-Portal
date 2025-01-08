@@ -13,6 +13,7 @@ import InvoicesPage from "./pages/invoices";
 import ContractsPage from "./pages/contracts";
 import MeetingsPage from "./pages/meetings";
 import ExpensesPage from "./pages/expenses";
+import SettingsPage from "./pages/settings";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <ExpensesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             }
           />
