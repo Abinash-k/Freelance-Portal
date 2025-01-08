@@ -100,12 +100,8 @@ const App = () => (
             }
           />
           <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <div className="p-8">Settings Coming Soon</div>
-              </ProtectedRoute>
-            }
+            path="*"
+            element={<Navigate to="/dashboard" replace />}
           />
         </Routes>
       </BrowserRouter>

@@ -5,6 +5,9 @@ import { MeetingsTable } from "@/components/meetings/MeetingsTable";
 import { MeetingDialog } from "@/components/meetings/MeetingDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Navigation } from "@/components/Navigation";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 const MeetingsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -23,16 +26,24 @@ const MeetingsPage = () => {
   });
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Meetings</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Schedule Meeting
-        </Button>
-      </div>
-      <MeetingsTable meetings={meetings || []} isLoading={isLoading} />
-      <MeetingDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full pt-16">
+          <DashboardSidebar />
+          <main className="flex-1 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Meetings</h1>
+              <Button onClick={() => setIsDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Schedule Meeting
+              </Button>
+            </div>
+            <MeetingsTable meetings={meetings || []} isLoading={isLoading} />
+            <MeetingDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+          </main>
+        </div>
+      </SidebarProvider>
     </div>
   );
 };
