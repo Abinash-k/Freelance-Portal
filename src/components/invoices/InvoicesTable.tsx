@@ -23,14 +23,32 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { InvoiceDialog } from "./InvoiceDialog";
 import { format } from "date-fns";
-import { CircleDollarSign, FileText, Printer, Trash } from "lucide-react";
+import { FileText, Printer, Trash } from "lucide-react";
 import { pdf } from "@react-pdf/renderer";
 import { InvoicePDFTemplate } from "./InvoicePDFTemplate";
+import { useQuery } from "@tanstack/react-query";
 
 export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
   const [editingInvoice, setEditingInvoice] = useState<any>(null);
   const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const { data: businessDetails } = useQuery({
+    queryKey: ["businessDetails"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("business_details")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return data;
+    },
+  });
 
   const handleDelete = async () => {
     if (!deletingInvoiceId) return;
@@ -60,29 +78,16 @@ export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "bg-green-500";
-      case "overdue":
-        return "bg-red-500";
-      case "sent":
-        return "bg-blue-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   const generateInvoicePDF = async (invoice: any) => {
     try {
-      // In a real app, these would come from user settings/profile
-      const businessDetails = {
-        name: "Your Business Name",
-        email: "business@example.com",
-        phone: "+1 (555) 123-4567",
-        website: "www.yourbusiness.com",
-        address: "123 Business Street, City, Country",
-      };
+      if (!businessDetails) {
+        toast({
+          title: "Business details missing",
+          description: "Please add your business details in the settings page first.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       const blob = await pdf(
         <InvoicePDFTemplate

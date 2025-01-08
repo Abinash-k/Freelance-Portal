@@ -9,7 +9,6 @@ import {
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
-// Register a custom font for the cursive business name
 Font.register({
   family: "Dancing Script",
   src: "https://fonts.gstatic.com/s/dancingscript/v24/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSo3ROp6.ttf",
@@ -83,6 +82,14 @@ const styles = StyleSheet.create({
   },
 });
 
+interface BusinessDetails {
+  business_name: string;
+  email: string;
+  phone: string;
+  website: string;
+  address: string;
+}
+
 interface InvoicePDFTemplateProps {
   invoice: {
     invoice_number: string;
@@ -92,13 +99,7 @@ interface InvoicePDFTemplateProps {
     amount: number;
     status: string;
   };
-  businessDetails: {
-    name: string;
-    email: string;
-    phone: string;
-    website: string;
-    address: string;
-  };
+  businessDetails: BusinessDetails;
 }
 
 export const InvoicePDFTemplate = ({
@@ -112,7 +113,7 @@ export const InvoicePDFTemplate = ({
           <Text style={styles.title}>INVOICE</Text>
         </View>
         <View>
-          <Text style={styles.businessName}>{businessDetails.name}</Text>
+          <Text style={styles.businessName}>{businessDetails.business_name}</Text>
           <Text style={styles.businessDetails}>{businessDetails.address}</Text>
         </View>
       </View>
