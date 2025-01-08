@@ -24,6 +24,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { InvoiceDialog } from "./InvoiceDialog";
 import { format } from "date-fns";
 import { CircleDollarSign, FileText, Printer, Trash } from "lucide-react";
+import { pdf } from "@react-pdf/renderer";
+import { InvoicePDFTemplate } from "./InvoicePDFTemplate";
 
 export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
   const [editingInvoice, setEditingInvoice] = useState<any>(null);
@@ -71,35 +73,40 @@ export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
     }
   };
 
-  const generateInvoicePDF = (invoice: any) => {
-    // This is a simple template. You can enhance it with more styling and content
-    const template = `
-      INVOICE
-      
-      Invoice Number: ${invoice.invoice_number}
-      Date: ${format(new Date(invoice.issue_date), "PP")}
-      Due Date: ${format(new Date(invoice.due_date), "PP")}
-      
-      Bill To:
-      ${invoice.client_name}
-      
-      Amount Due: $${invoice.amount.toFixed(2)}
-      
-      Status: ${invoice.status}
-    `;
+  const generateInvoicePDF = async (invoice: any) => {
+    try {
+      // In a real app, these would come from user settings/profile
+      const businessDetails = {
+        name: "Your Business Name",
+        email: "business@example.com",
+        phone: "+1 (555) 123-4567",
+        website: "www.yourbusiness.com",
+        address: "123 Business Street, City, Country",
+      };
 
-    // Create a Blob with the template
-    const blob = new Blob([template], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-
-    // Create a temporary link and trigger download
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `invoice-${invoice.invoice_number}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      const blob = await pdf(
+        <InvoicePDFTemplate
+          invoice={invoice}
+          businessDetails={businessDetails}
+        />
+      ).toBlob();
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice-${invoice.invoice_number}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error generating PDF",
+        description: "There was an error generating the PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
