@@ -9,9 +9,10 @@ import {
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
+// Register the font with a direct TTF file URL
 Font.register({
   family: "Dancing Script",
-  src: "https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap",
+  src: "https://fonts.gstatic.com/s/dancingscript/v24/If2RXTr6YS-zF4S-kcSWSVi_szLuiuEHiC_Mfw.woff2",
 });
 
 const styles = StyleSheet.create({
