@@ -9,8 +9,20 @@ import { Navigation } from "@/components/Navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
+interface Meeting {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  duration: number;
+  attendees: string[];
+  status: string;
+  location: string;
+}
+
 const MeetingsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState<Meeting | undefined>();
 
   const { data: meetings, isLoading } = useQuery({
     queryKey: ["meetings"],
@@ -24,6 +36,18 @@ const MeetingsPage = () => {
       return data;
     },
   });
+
+  const handleEdit = (meeting: Meeting) => {
+    setSelectedMeeting(meeting);
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setSelectedMeeting(undefined);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,8 +63,16 @@ const MeetingsPage = () => {
                 Schedule Meeting
               </Button>
             </div>
-            <MeetingsTable meetings={meetings || []} isLoading={isLoading} />
-            <MeetingDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+            <MeetingsTable
+              meetings={meetings || []}
+              isLoading={isLoading}
+              onEdit={handleEdit}
+            />
+            <MeetingDialog
+              open={isDialogOpen}
+              onOpenChange={handleDialogClose}
+              meeting={selectedMeeting}
+            />
           </main>
         </div>
       </SidebarProvider>

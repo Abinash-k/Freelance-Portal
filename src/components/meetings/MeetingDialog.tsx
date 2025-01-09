@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,9 +21,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 
+interface Meeting {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  duration: number;
+  attendees: string[];
+  status: string;
+  location: string;
+}
+
 interface MeetingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  meeting?: Meeting;
 }
 
 interface FormData {
@@ -34,54 +46,100 @@ interface FormData {
   attendees: string;
 }
 
-export const MeetingDialog = ({ open, onOpenChange }: MeetingDialogProps) => {
-  const [isCreatingMeet, setIsCreatingMeet] = useState(false);
+export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProps) => {
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const form = useForm<FormData>();
 
-  const createMeeting = useMutation({
+  useEffect(() => {
+    if (meeting) {
+      form.reset({
+        title: meeting.title,
+        description: meeting.description || "",
+        date: new Date(meeting.date).toISOString().slice(0, 16),
+        duration: meeting.duration,
+        attendees: meeting.attendees.join(", "),
+      });
+    } else {
+      form.reset({
+        title: "",
+        description: "",
+        date: "",
+        duration: 30,
+        attendees: "",
+      });
+    }
+  }, [meeting, form]);
+
+  const mutation = useMutation({
     mutationFn: async (data: FormData) => {
-      setIsCreatingMeet(true);
+      setIsProcessing(true);
       try {
         // Get the current user's ID
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
-        // Call our edge function to create the meeting
-        const { data: meetingData, error } = await supabase.functions.invoke('create-meeting', {
-          body: {
-            title: data.title,
-            description: data.description,
-            date: new Date(data.date).toISOString(),
-            duration: Number(data.duration),
-            attendees: data.attendees.split(",").map((email) => email.trim()),
-            user_id: user.id,
-          },
-        });
+        if (meeting) {
+          // Update existing meeting
+          const { data: updatedMeeting, error } = await supabase
+            .from("meetings")
+            .update({
+              title: data.title,
+              description: data.description,
+              date: new Date(data.date).toISOString(),
+              duration: Number(data.duration),
+              attendees: data.attendees.split(",").map((email) => email.trim()),
+            })
+            .eq("id", meeting.id)
+            .select()
+            .single();
 
-        if (error) throw error;
+          if (error) throw error;
+          return updatedMeeting;
+        } else {
+          // Create new meeting
+          // Call our edge function to create the meeting
+          const { data: meetingData, error } = await supabase.functions.invoke('create-meeting', {
+            body: {
+              title: data.title,
+              description: data.description,
+              date: new Date(data.date).toISOString(),
+              duration: Number(data.duration),
+              attendees: data.attendees.split(",").map((email) => email.trim()),
+              user_id: user.id,
+            },
+          });
 
-        toast({
-          title: "Success",
-          description: "Meeting scheduled successfully. Invites have been sent.",
-        });
-
-        onOpenChange(false);
-        form.reset();
+          if (error) throw error;
+          return meetingData;
+        }
       } catch (error) {
-        console.error("Error creating meeting:", error);
-        toast({
-          title: "Error",
-          description: "Failed to schedule meeting",
-          variant: "destructive",
-        });
-      } finally {
-        setIsCreatingMeet(false);
+        console.error("Error processing meeting:", error);
+        throw error;
       }
     },
     onSuccess: () => {
+      toast({
+        title: "Success",
+        description: `Meeting ${meeting ? "updated" : "scheduled"} successfully.${
+          !meeting ? " Invites have been sent." : ""
+        }`,
+      });
+      onOpenChange(false);
+      form.reset();
       queryClient.invalidateQueries({ queryKey: ["meetings"] });
+    },
+    onError: (error) => {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: `Failed to ${meeting ? "update" : "schedule"} meeting`,
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setIsProcessing(false);
     },
   });
 
@@ -89,11 +147,11 @@ export const MeetingDialog = ({ open, onOpenChange }: MeetingDialogProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Schedule Meeting</DialogTitle>
+          <DialogTitle>{meeting ? "Edit Meeting" : "Schedule Meeting"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit((data) => createMeeting.mutate(data))}
+            onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
             className="space-y-4"
           >
             <FormField
@@ -169,8 +227,8 @@ export const MeetingDialog = ({ open, onOpenChange }: MeetingDialogProps) => {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isCreatingMeet}>
-                Schedule Meeting
+              <Button type="submit" disabled={isProcessing}>
+                {meeting ? "Update" : "Schedule"} Meeting
               </Button>
             </div>
           </form>
