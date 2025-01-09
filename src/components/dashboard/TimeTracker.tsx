@@ -1,7 +1,7 @@
 import { Plus, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -26,8 +26,20 @@ interface TimeTrackerFormValues {
 export const TimeTracker = () => {
   const [isTracking, setIsTracking] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const form = useForm<TimeTrackerFormValues>();
+
+  useEffect(() => {
+    const getUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        console.log("Current user ID:", user.id);
+      }
+    };
+    getUserId();
+  }, []);
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ['projects'],
@@ -43,6 +55,15 @@ export const TimeTracker = () => {
   });
 
   const handleStartTimer = async (values: TimeTrackerFormValues) => {
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "User not authenticated",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!values.project_id || !values.description) {
       toast({
         title: "Error",
@@ -62,6 +83,7 @@ export const TimeTracker = () => {
         project_id: values.project_id,
         description: values.description,
         start_time: now.toISOString(),
+        user_id: userId
       });
 
     if (error) {
@@ -81,7 +103,7 @@ export const TimeTracker = () => {
   };
 
   const handleStopTimer = async () => {
-    if (!startTime) return;
+    if (!startTime || !userId) return;
 
     const endTime = new Date();
     const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000); // Duration in seconds
@@ -92,7 +114,8 @@ export const TimeTracker = () => {
         end_time: endTime.toISOString(),
         duration: duration,
       })
-      .eq('start_time', startTime.toISOString());
+      .eq('start_time', startTime.toISOString())
+      .eq('user_id', userId);
 
     if (error) {
       toast({

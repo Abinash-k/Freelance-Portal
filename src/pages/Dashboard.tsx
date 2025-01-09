@@ -107,7 +107,7 @@ const Dashboard = () => {
                 <ProjectsList projects={projects} />
               </div>
               <div>
-                <TimeTracker projects={projects} />
+                <TimeTracker />
               </div>
             </div>
           </main>
