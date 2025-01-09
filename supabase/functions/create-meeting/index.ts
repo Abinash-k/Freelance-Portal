@@ -44,49 +44,55 @@ async function sendEmailInvites(meetingDetails: {
 }) {
   const { title, description, date, location, attendees } = meetingDetails;
   
-  try {
-    console.log("Starting to send email invites to:", attendees);
-    
-    for (const attendee of attendees) {
-      try {
-        console.log(`Sending email to ${attendee}...`);
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-          },
-          body: JSON.stringify({
-            from: "Meetings <onboarding@resend.dev>", // Using Resend's default sender
-            to: attendee,
-            subject: `Meeting Invitation: ${title}`,
-            html: `
-              <h2>You've been invited to a meeting</h2>
-              <p><strong>Title:</strong> ${title}</p>
-              <p><strong>Description:</strong> ${description}</p>
-              <p><strong>Date:</strong> ${new Date(date).toLocaleString()}</p>
-              <p><strong>Join Link:</strong> <a href="${location}">${location}</a></p>
-            `,
-          }),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.text();
-          throw new Error(`Resend API error: ${errorData}`);
-        }
-        
-        console.log(`Successfully sent email to ${attendee}`);
-      } catch (error) {
-        console.error(`Failed to send email to ${attendee}:`, error);
-        throw new Error(`Failed to send email to ${attendee}: ${error.message}`);
-      }
-    }
-
-    console.log("Successfully sent all email invites");
-  } catch (error) {
-    console.error("Error in sendEmailInvites:", error);
-    throw error;
+  if (!RESEND_API_KEY) {
+    console.error("RESEND_API_KEY is not configured");
+    throw new Error("Email service is not configured");
   }
+
+  console.log("Starting to send email invites to:", attendees);
+  const failedEmails = [];
+  
+  for (const attendee of attendees) {
+    try {
+      console.log(`Sending email to ${attendee}...`);
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "Meetings <onboarding@resend.dev>",
+          to: attendee,
+          subject: `Meeting Invitation: ${title}`,
+          html: `
+            <h2>You've been invited to a meeting</h2>
+            <p><strong>Title:</strong> ${title}</p>
+            <p><strong>Description:</strong> ${description}</p>
+            <p><strong>Date:</strong> ${new Date(date).toLocaleString()}</p>
+            <p><strong>Join Link:</strong> <a href="${location}">${location}</a></p>
+          `,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.text();
+        console.error(`Failed to send email to ${attendee}:`, errorData);
+        failedEmails.push(attendee);
+      } else {
+        console.log(`Successfully sent email to ${attendee}`);
+      }
+    } catch (error) {
+      console.error(`Error sending email to ${attendee}:`, error);
+      failedEmails.push(attendee);
+    }
+  }
+
+  if (failedEmails.length > 0) {
+    throw new Error(`Failed to send emails to: ${failedEmails.join(", ")}`);
+  }
+
+  console.log("Successfully sent all email invites");
 }
 
 serve(async (req) => {
@@ -127,16 +133,34 @@ serve(async (req) => {
       .select()
       .single();
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error("Database error:", dbError);
+      throw dbError;
+    }
 
     // Send email invites
-    await sendEmailInvites({
-      title,
-      description,
-      date,
-      location: meetLink,
-      attendees,
-    });
+    try {
+      await sendEmailInvites({
+        title,
+        description,
+        date,
+        location: meetLink,
+        attendees,
+      });
+    } catch (emailError) {
+      console.error("Email sending error:", emailError);
+      // Even if email sending fails, we'll return the created meeting
+      return new Response(
+        JSON.stringify({ 
+          meeting,
+          warning: "Meeting created but there were issues sending some email invites"
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
 
     return new Response(
       JSON.stringify({ success: true, meeting }),
@@ -148,7 +172,9 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error creating meeting:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error instanceof Error ? error.message : "An unknown error occurred" 
+      }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
