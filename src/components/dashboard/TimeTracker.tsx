@@ -1,22 +1,14 @@
-import { Plus, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  client_name: string;
-  budget: number;
-}
+import { ProjectDialog } from "./ProjectDialog";
 
 interface TimeTrackerFormValues {
   project_id: string;
@@ -50,7 +42,7 @@ export const TimeTracker = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Project[];
+      return data;
     }
   });
 
@@ -106,7 +98,7 @@ export const TimeTracker = () => {
     if (!startTime || !userId) return;
 
     const endTime = new Date();
-    const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000); // Duration in seconds
+    const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
 
     const { error } = await supabase
       .from('time_entries')
@@ -145,9 +137,7 @@ export const TimeTracker = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Time Tracker</h2>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" /> New Project
-        </Button>
+        <ProjectDialog />
       </div>
       <Card>
         <CardContent className="pt-6">
