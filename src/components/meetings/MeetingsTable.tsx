@@ -87,6 +87,20 @@ export const MeetingsTable = ({ meetings, isLoading, onEdit }: MeetingsTableProp
     }
   };
 
+  const handleJoinMeeting = (location: string) => {
+    if (!location) {
+      toast({
+        title: "Error",
+        description: "Meeting link is not available",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Open in new tab
+    window.open(location, '_blank', 'noopener,noreferrer');
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -146,10 +160,13 @@ export const MeetingsTable = ({ meetings, isLoading, onEdit }: MeetingsTableProp
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={meeting.location} target="_blank" rel="noopener noreferrer">
-                      Join Meeting
-                    </a>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleJoinMeeting(meeting.location)}
+                    disabled={!meeting.location}
+                  >
+                    Join Meeting
                   </Button>
                   <Button
                     variant="ghost"

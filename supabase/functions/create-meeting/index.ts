@@ -19,10 +19,20 @@ interface MeetingRequest {
 }
 
 async function createGoogleMeet(title: string) {
-  // For now, we'll create a simple unique meeting ID
-  // In production, this should be integrated with Google Calendar API
-  const meetingId = Math.random().toString(36).substring(7);
-  return `https://meet.google.com/${meetingId}`;
+  // Generate a more realistic Google Meet ID
+  const chars = 'abcdefghijklmnopqrstuvwxyz';
+  const meetId = Array(3)
+    .fill(0)
+    .map(() => {
+      const segment = Array(3)
+        .fill(0)
+        .map(() => chars[Math.floor(Math.random() * chars.length)])
+        .join('');
+      return segment;
+    })
+    .join('-');
+  
+  return `https://meet.google.com/${meetId}`;
 }
 
 async function sendEmailInvites(meetingDetails: {
