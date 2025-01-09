@@ -76,18 +76,7 @@ const Dashboard = () => {
     }
   };
 
-  // Format contracts for projects list
-  const projects = contracts?.map(contract => ({
-    name: contract.project_name,
-    client: contract.client_name,
-    dueDate: contract.end_date || 'Not set',
-    hoursLogged: "0h",
-    budget: `$${Number(contract.value).toLocaleString()}`,
-    progress: 0,
-    status: contract.status
-  })) || [];
-
-  console.log("Rendered dashboard with projects:", projects);
+  console.log("Rendered dashboard with contracts:", contracts);
 
   return (
     <div className="min-h-screen bg-background">
@@ -104,7 +93,7 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">Active Projects</h2>
                 </div>
-                <ProjectsList projects={projects} />
+                <ProjectsList />
               </div>
               <div>
                 <TimeTracker />
