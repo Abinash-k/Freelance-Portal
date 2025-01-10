@@ -8,6 +8,7 @@ import { createMeetingRecord } from './database.ts';
 import { sendMeetingInvites } from './email.ts';
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -19,7 +20,13 @@ serve(async (req) => {
     const ZOOM_API_SECRET = Deno.env.get('ZOOM_API_SECRET')!;
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
 
-    console.log("Starting meeting creation with Zoom credentials");
+    console.log("Starting meeting creation process");
+    console.log("Checking environment variables:");
+    console.log("- SUPABASE_URL present:", !!SUPABASE_URL);
+    console.log("- SUPABASE_ANON_KEY present:", !!SUPABASE_ANON_KEY);
+    console.log("- ZOOM_API_KEY present:", !!ZOOM_API_KEY);
+    console.log("- ZOOM_API_SECRET present:", !!ZOOM_API_SECRET);
+    console.log("- RESEND_API_KEY present:", !!RESEND_API_KEY);
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const resend = new Resend(RESEND_API_KEY);
@@ -27,16 +34,17 @@ serve(async (req) => {
     const { title, description, date, duration, attendees, user_id } = await req.json();
 
     // Create Zoom meeting
+    console.log("Generating JWT token for Zoom API");
     const jwt = await generateZoomJWT(ZOOM_API_KEY, ZOOM_API_SECRET);
-    console.log("Generated JWT token for Zoom API");
+    console.log("Successfully generated JWT token");
 
+    console.log("Creating Zoom meeting");
     const zoomUrl = await createZoomMeeting(jwt, {
       topic: title,
       duration,
       start_time: date,
       type: 2, // Scheduled meeting
     });
-
     console.log("Successfully created Zoom meeting with URL:", zoomUrl);
 
     // Create meeting record in database
@@ -49,7 +57,6 @@ serve(async (req) => {
       user_id,
       location: zoomUrl,
     });
-
     console.log("Created meeting record in database:", meetingRecord);
 
     // Send email invites
@@ -61,7 +68,6 @@ serve(async (req) => {
       duration,
       zoomUrl,
     });
-
     console.log("Sent meeting invites to attendees");
 
     return new Response(

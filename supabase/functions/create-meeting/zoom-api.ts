@@ -17,6 +17,8 @@ export const createZoomMeeting = async (
       headers: {
         'Authorization': `Bearer ${jwt}`,
         'Content-Type': 'application/json',
+        'User-Agent': 'Zoom-api-Jwt-Request',
+        'Accept': 'application/json'
       },
       body: JSON.stringify({
         ...meetingParams,
@@ -25,17 +27,21 @@ export const createZoomMeeting = async (
           waiting_room: false,
           host_video: true,
           participant_video: true,
+          auto_recording: 'none'
         }
       }),
     });
 
+    const responseText = await response.text();
+    console.log("Zoom API response status:", response.status);
+    console.log("Zoom API response headers:", Object.fromEntries(response.headers));
+    console.log("Zoom API response body:", responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Zoom API error response:", errorText);
-      throw new Error(`Failed to create Zoom meeting: ${errorText}`);
+      throw new Error(`Zoom API error: ${responseText}`);
     }
 
-    const meetingData = await response.json();
+    const meetingData = JSON.parse(responseText);
     console.log("Successfully created Zoom meeting:", meetingData);
     return meetingData.join_url;
   } catch (error) {
