@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import * as jose from "https://deno.land/x/jose@v4.14.4/index.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const ZOOM_API_KEY = Deno.env.get("ZOOM_API_KEY");
@@ -30,16 +31,11 @@ async function createZoomMeeting(title: string, startTime: string, durationMinut
 
   try {
     // Generate JWT token for Zoom API authentication
-    const header = { alg: 'HS256', typ: 'JWT' };
-    const payload = {
+    const token = await new jose.SignJWT({
       iss: ZOOM_API_KEY,
-      exp: ((new Date()).getTime() + 5000)
-    };
-
-    const token = await new jose.SignJWT(payload)
-      .setProtectedHeader(header)
-      .setIssuedAt()
-      .setExpirationTime('5m')
+      exp: Math.floor(Date.now() / 1000) + 300, // 5 minutes from now
+    })
+      .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
       .sign(new TextEncoder().encode(ZOOM_API_SECRET));
 
     // Create Zoom meeting
