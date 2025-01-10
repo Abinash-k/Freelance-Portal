@@ -87,18 +87,27 @@ export const MeetingsTable = ({ meetings, isLoading, onEdit }: MeetingsTableProp
     }
   };
 
-  const handleJoinMeeting = (location: string) => {
+  const handleJoinMeeting = (location: string | null | undefined) => {
     if (!location) {
       toast({
         title: "Error",
-        description: "Meeting link is not available",
+        description: "Meeting link is not available. Please edit the meeting to add a location.",
         variant: "destructive",
       });
       return;
     }
 
-    // Open in new tab
-    window.open(location, '_blank', 'noopener,noreferrer');
+    // Validate URL format
+    try {
+      new URL(location);
+      window.open(location, '_blank', 'noopener,noreferrer');
+    } catch {
+      toast({
+        title: "Error",
+        description: "Invalid meeting link format. Please check the meeting location.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
@@ -164,7 +173,6 @@ export const MeetingsTable = ({ meetings, isLoading, onEdit }: MeetingsTableProp
                     variant="outline" 
                     size="sm"
                     onClick={() => handleJoinMeeting(meeting.location)}
-                    disabled={!meeting.location}
                   >
                     Join Meeting
                   </Button>
