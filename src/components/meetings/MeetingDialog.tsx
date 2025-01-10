@@ -2,24 +2,17 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
+import { MeetingFormFields } from "./MeetingFormFields";
+import { MeetingDialogFooter } from "./MeetingDialogFooter";
 
 interface Meeting {
   id: string;
@@ -76,13 +69,12 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
     mutationFn: async (data: FormData) => {
       setIsProcessing(true);
       try {
-        // Get the current user's ID
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
         if (meeting) {
           // Update existing meeting
-          const { data: updatedMeeting, error } = await supabase
+          const { error } = await supabase
             .from("meetings")
             .update({
               title: data.title,
@@ -91,15 +83,12 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
               duration: Number(data.duration),
               attendees: data.attendees.split(",").map((email) => email.trim()),
             })
-            .eq("id", meeting.id)
-            .select()
-            .single();
+            .eq("id", meeting.id);
 
           if (error) throw error;
-          return updatedMeeting;
+          return meeting;
         } else {
-          // Create new meeting
-          // Call our edge function to create the meeting
+          // Create new meeting via edge function
           const { data: meetingData, error } = await supabase.functions.invoke('create-meeting', {
             body: {
               title: data.title,
@@ -148,89 +137,21 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{meeting ? "Edit Meeting" : "Schedule Meeting"}</DialogTitle>
+          <DialogDescription>
+            Fill in the details below to {meeting ? "update" : "schedule"} your meeting.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Meeting title" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <MeetingFormFields form={form} />
+            <MeetingDialogFooter 
+              onCancel={() => onOpenChange(false)}
+              isProcessing={isProcessing}
+              isEditing={!!meeting}
             />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Meeting description" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date and Time</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="datetime-local" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="duration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Duration (minutes)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" min="15" step="15" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="attendees"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Attendees (comma-separated emails)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="email1@example.com, email2@example.com" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isProcessing}>
-                {meeting ? "Update" : "Schedule"} Meeting
-              </Button>
-            </div>
           </form>
         </Form>
       </DialogContent>
