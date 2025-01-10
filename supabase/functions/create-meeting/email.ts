@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+import { Resend } from 'npm:resend@1.0.0';
 
 interface EmailParams {
   attendees: string[];

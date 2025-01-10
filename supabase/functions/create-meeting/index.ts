@@ -1,6 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import { Resend } from 'npm:resend@1.0.0';
 import { corsHeaders } from '../_shared/cors.ts';
 import { generateZoomJWT } from './zoom-auth.ts';
 import { createZoomMeeting } from './zoom-api.ts';
