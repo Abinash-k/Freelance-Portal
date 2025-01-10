@@ -1,4 +1,4 @@
-import * as jose from 'jose';
+import * as jose from 'npm:jose@4.14.4';
 
 export const generateZoomJWT = async (ZOOM_API_KEY: string, ZOOM_API_SECRET: string) => {
   console.log("Starting JWT token generation");
