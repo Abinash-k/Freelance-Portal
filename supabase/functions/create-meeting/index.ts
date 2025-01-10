@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+const ZOOM_API_KEY = Deno.env.get("ZOOM_API_KEY");
+const ZOOM_API_SECRET = Deno.env.get("ZOOM_API_SECRET");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,21 +20,62 @@ interface MeetingRequest {
   user_id: string;
 }
 
-async function createGoogleMeet(title: string) {
-  // Generate a more realistic Google Meet ID
-  const chars = 'abcdefghijklmnopqrstuvwxyz';
-  const meetId = Array(3)
-    .fill(0)
-    .map(() => {
-      const segment = Array(3)
-        .fill(0)
-        .map(() => chars[Math.floor(Math.random() * chars.length)])
-        .join('');
-      return segment;
-    })
-    .join('-');
-  
-  return `https://meet.google.com/${meetId}`;
+async function createZoomMeeting(title: string, startTime: string, durationMinutes: number) {
+  if (!ZOOM_API_KEY || !ZOOM_API_SECRET) {
+    console.error("Zoom API credentials are not configured");
+    throw new Error("Zoom API is not configured");
+  }
+
+  console.log("Creating Zoom meeting:", { title, startTime, durationMinutes });
+
+  try {
+    // Generate JWT token for Zoom API authentication
+    const header = { alg: 'HS256', typ: 'JWT' };
+    const payload = {
+      iss: ZOOM_API_KEY,
+      exp: ((new Date()).getTime() + 5000)
+    };
+
+    const token = await new jose.SignJWT(payload)
+      .setProtectedHeader(header)
+      .setIssuedAt()
+      .setExpirationTime('5m')
+      .sign(new TextEncoder().encode(ZOOM_API_SECRET));
+
+    // Create Zoom meeting
+    const response = await fetch('https://api.zoom.us/v2/users/me/meetings', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        topic: title,
+        type: 2, // Scheduled meeting
+        start_time: startTime,
+        duration: durationMinutes,
+        settings: {
+          host_video: true,
+          participant_video: true,
+          join_before_host: true,
+          waiting_room: false,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("Zoom API error:", errorData);
+      throw new Error(`Failed to create Zoom meeting: ${errorData}`);
+    }
+
+    const meetingData = await response.json();
+    console.log("Zoom meeting created successfully:", meetingData);
+    return meetingData.join_url;
+  } catch (error) {
+    console.error("Error creating Zoom meeting:", error);
+    throw error;
+  }
 }
 
 async function sendEmailInvites(meetingDetails: {
@@ -107,9 +150,9 @@ serve(async (req) => {
 
     console.log("Creating meeting:", { title, date, attendees });
 
-    // Create Google Meet link
-    const meetLink = await createGoogleMeet(title);
-    console.log("Created meet link:", meetLink);
+    // Create Zoom meeting
+    const meetLink = await createZoomMeeting(title, date, duration);
+    console.log("Created Zoom meeting link:", meetLink);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
