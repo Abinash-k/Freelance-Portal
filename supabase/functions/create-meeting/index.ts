@@ -28,18 +28,30 @@ async function createZoomMeeting(title: string, startTime: string, durationMinut
   }
 
   try {
-    console.log("Generating JWT token for Zoom API");
+    console.log("Starting Zoom meeting creation with API key:", ZOOM_API_KEY);
     const now = Math.floor(Date.now() / 1000);
+    
+    // Create JWT payload with required claims
     const payload = {
       iss: ZOOM_API_KEY,
       exp: now + 3600,
     };
 
+    console.log("Creating JWT token with payload:", JSON.stringify(payload));
+    
+    // Generate JWT token with specific header parameters
     const jwt = await new jose.SignJWT(payload)
-      .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+      .setProtectedHeader({ 
+        alg: 'HS256',
+        typ: 'JWT',
+        kid: ZOOM_API_KEY // Add Key ID to header
+      })
       .sign(new TextEncoder().encode(ZOOM_API_SECRET));
 
-    console.log("Making request to Zoom API");
+    console.log("JWT token generated successfully");
+
+    // Make request to Zoom API
+    console.log("Making request to Zoom API to create meeting");
     const zoomResponse = await fetch('https://api.zoom.us/v2/users/me/meetings', {
       method: 'POST',
       headers: {
