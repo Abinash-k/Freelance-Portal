@@ -9,6 +9,8 @@ export const createZoomMeeting = async (
   jwt: string, 
   meetingParams: CreateMeetingParams
 ) => {
+  console.log("Creating Zoom meeting with params:", meetingParams);
+  
   try {
     const response = await fetch('https://api.zoom.us/v2/users/me/meetings', {
       method: 'POST',
@@ -16,7 +18,15 @@ export const createZoomMeeting = async (
         'Authorization': `Bearer ${jwt}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(meetingParams),
+      body: JSON.stringify({
+        ...meetingParams,
+        settings: {
+          join_before_host: true,
+          waiting_room: false,
+          host_video: true,
+          participant_video: true,
+        }
+      }),
     });
 
     if (!response.ok) {

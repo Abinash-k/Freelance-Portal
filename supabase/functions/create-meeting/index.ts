@@ -19,6 +19,8 @@ serve(async (req) => {
     const ZOOM_API_SECRET = Deno.env.get('ZOOM_API_SECRET')!;
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
 
+    console.log("Starting meeting creation with Zoom credentials");
+
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const resend = new Resend(RESEND_API_KEY);
 
@@ -26,12 +28,16 @@ serve(async (req) => {
 
     // Create Zoom meeting
     const jwt = await generateZoomJWT(ZOOM_API_KEY, ZOOM_API_SECRET);
+    console.log("Generated JWT token for Zoom API");
+
     const zoomUrl = await createZoomMeeting(jwt, {
       topic: title,
       duration,
       start_time: date,
       type: 2, // Scheduled meeting
     });
+
+    console.log("Successfully created Zoom meeting with URL:", zoomUrl);
 
     // Create meeting record in database
     const meetingRecord = await createMeetingRecord(supabase, {
@@ -42,7 +48,9 @@ serve(async (req) => {
       attendees,
       user_id,
       location: zoomUrl,
-    }, zoomUrl);
+    });
+
+    console.log("Created meeting record in database:", meetingRecord);
 
     // Send email invites
     await sendMeetingInvites(resend, {
@@ -53,6 +61,8 @@ serve(async (req) => {
       duration,
       zoomUrl,
     });
+
+    console.log("Sent meeting invites to attendees");
 
     return new Response(
       JSON.stringify(meetingRecord),
