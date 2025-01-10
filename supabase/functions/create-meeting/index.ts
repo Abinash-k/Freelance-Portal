@@ -28,17 +28,18 @@ async function createZoomMeeting(title: string, startTime: string, durationMinut
   }
 
   try {
-    // Generate JWT token for Zoom API authentication
+    console.log("Generating JWT token for Zoom API");
     const now = Math.floor(Date.now() / 1000);
-    const jwt = await new jose.SignJWT({
+    const payload = {
       iss: ZOOM_API_KEY,
       exp: now + 3600,
-    })
-      .setProtectedHeader({ alg: 'HS256' })
+    };
+
+    const jwt = await new jose.SignJWT(payload)
+      .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
       .sign(new TextEncoder().encode(ZOOM_API_SECRET));
 
-    console.log("Generated JWT token for Zoom API");
-
+    console.log("Making request to Zoom API");
     const zoomResponse = await fetch('https://api.zoom.us/v2/users/me/meetings', {
       method: 'POST',
       headers: {
@@ -47,7 +48,7 @@ async function createZoomMeeting(title: string, startTime: string, durationMinut
       },
       body: JSON.stringify({
         topic: title,
-        type: 2,
+        type: 2, // Scheduled meeting
         start_time: startTime,
         duration: durationMinutes,
         timezone: 'UTC',
@@ -62,9 +63,9 @@ async function createZoomMeeting(title: string, startTime: string, durationMinut
     });
 
     if (!zoomResponse.ok) {
-      const errorData = await zoomResponse.text();
-      console.error("Zoom API error:", errorData);
-      throw new Error(`Failed to create Zoom meeting: ${errorData}`);
+      const errorText = await zoomResponse.text();
+      console.error("Zoom API error response:", errorText);
+      throw new Error(`Failed to create Zoom meeting: ${errorText}`);
     }
 
     const meetingData = await zoomResponse.json();
