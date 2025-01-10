@@ -27,34 +27,27 @@ async function createZoomMeeting(title: string, startTime: string, durationMinut
     throw new Error("Zoom API is not configured");
   }
 
-  console.log("Creating Zoom meeting:", { title, startTime, durationMinutes });
-
   try {
     // Generate JWT token for Zoom API authentication
     const now = Math.floor(Date.now() / 1000);
-    const payload = {
+    const jwt = await new jose.SignJWT({
       iss: ZOOM_API_KEY,
-      exp: now + 300, // 5 minutes from now
-    };
-
-    console.log("Generating JWT token with payload:", payload);
-
-    const token = await new jose.SignJWT(payload)
-      .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
+      exp: now + 3600,
+    })
+      .setProtectedHeader({ alg: 'HS256' })
       .sign(new TextEncoder().encode(ZOOM_API_SECRET));
 
-    console.log("JWT token generated successfully");
+    console.log("Generated JWT token for Zoom API");
 
-    // Create Zoom meeting
-    const response = await fetch('https://api.zoom.us/v2/users/me/meetings', {
+    const zoomResponse = await fetch('https://api.zoom.us/v2/users/me/meetings', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Authorization': `Bearer ${jwt}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         topic: title,
-        type: 2, // Scheduled meeting
+        type: 2,
         start_time: startTime,
         duration: durationMinutes,
         timezone: 'UTC',
@@ -63,23 +56,22 @@ async function createZoomMeeting(title: string, startTime: string, durationMinut
           participant_video: true,
           join_before_host: true,
           waiting_room: false,
-        }
-      })
+          mute_upon_entry: false,
+        },
+      }),
     });
 
-    const responseText = await response.text();
-    console.log("Zoom API response:", responseText);
-
-    if (!response.ok) {
-      console.error("Zoom API error response:", responseText);
-      throw new Error(`Failed to create Zoom meeting: ${responseText}`);
+    if (!zoomResponse.ok) {
+      const errorData = await zoomResponse.text();
+      console.error("Zoom API error:", errorData);
+      throw new Error(`Failed to create Zoom meeting: ${errorData}`);
     }
 
-    const meetingData = JSON.parse(responseText);
-    console.log("Zoom meeting created successfully:", meetingData);
+    const meetingData = await zoomResponse.json();
+    console.log("Successfully created Zoom meeting:", meetingData);
     return meetingData.join_url;
   } catch (error) {
-    console.error("Error creating Zoom meeting:", error);
+    console.error("Error in createZoomMeeting:", error);
     throw error;
   }
 }
@@ -103,7 +95,6 @@ async function sendEmailInvites(meetingDetails: {
   
   for (const attendee of attendees) {
     try {
-      console.log(`Sending email to ${attendee}...`);
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -128,8 +119,6 @@ async function sendEmailInvites(meetingDetails: {
         const errorData = await res.text();
         console.error(`Failed to send email to ${attendee}:`, errorData);
         failedEmails.push(attendee);
-      } else {
-        console.log(`Successfully sent email to ${attendee}`);
       }
     } catch (error) {
       console.error(`Error sending email to ${attendee}:`, error);
@@ -138,14 +127,12 @@ async function sendEmailInvites(meetingDetails: {
   }
 
   if (failedEmails.length > 0) {
+    console.error("Failed to send emails to:", failedEmails);
     throw new Error(`Failed to send emails to: ${failedEmails.join(", ")}`);
   }
-
-  console.log("Successfully sent all email invites");
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -154,11 +141,11 @@ serve(async (req) => {
     const meetingRequest: MeetingRequest = await req.json();
     const { title, description, date, duration, attendees, user_id } = meetingRequest;
 
-    console.log("Creating meeting:", { title, date, attendees });
+    console.log("Creating meeting with details:", { title, date, duration, attendees });
 
     // Create Zoom meeting
     const meetLink = await createZoomMeeting(title, date, duration);
-    console.log("Created Zoom meeting link:", meetLink);
+    console.log("Created Zoom meeting with link:", meetLink);
 
     // Initialize Supabase client
     const supabaseClient = createClient(
@@ -188,28 +175,13 @@ serve(async (req) => {
     }
 
     // Send email invites
-    try {
-      await sendEmailInvites({
-        title,
-        description,
-        date,
-        location: meetLink,
-        attendees,
-      });
-    } catch (emailError) {
-      console.error("Email sending error:", emailError);
-      // Even if email sending fails, we'll return the created meeting
-      return new Response(
-        JSON.stringify({ 
-          meeting,
-          warning: "Meeting created but there were issues sending some email invites"
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
+    await sendEmailInvites({
+      title,
+      description,
+      date,
+      location: meetLink,
+      attendees,
+    });
 
     return new Response(
       JSON.stringify({ success: true, meeting }),
@@ -219,7 +191,7 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error("Error creating meeting:", error);
+    console.error("Error in edge function:", error);
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : "An unknown error occurred" 
