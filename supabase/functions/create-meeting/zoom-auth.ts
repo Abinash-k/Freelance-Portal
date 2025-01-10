@@ -7,16 +7,19 @@ export const generateZoomJWT = async (ZOOM_API_KEY: string, ZOOM_API_SECRET: str
     const now = Math.floor(Date.now() / 1000);
     const exp = now + 3600; // Token expires in 1 hour
 
-    const jwt = await new jose.SignJWT({
+    // Create JWT payload according to Zoom API requirements
+    const payload = {
       iss: ZOOM_API_KEY,
-      exp: exp,
-    })
-    .setProtectedHeader({ 
-      alg: 'HS256',
-      typ: 'JWT',
-      kid: ZOOM_API_KEY // Adding key ID as required by Zoom
-    })
-    .sign(new TextEncoder().encode(ZOOM_API_SECRET));
+      exp: exp
+    };
+
+    // Sign the JWT with proper headers
+    const jwt = await new jose.SignJWT(payload)
+      .setProtectedHeader({ 
+        alg: 'HS256',
+        typ: 'JWT'
+      })
+      .sign(new TextEncoder().encode(ZOOM_API_SECRET));
 
     console.log("Successfully generated Zoom JWT token");
     return jwt;

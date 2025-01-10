@@ -16,12 +16,13 @@ export const createZoomMeeting = async (
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${jwt}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'Zoom-api-Jwt-Request',
-        'Accept': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        ...meetingParams,
+        topic: meetingParams.topic,
+        type: meetingParams.type,
+        start_time: meetingParams.start_time,
+        duration: meetingParams.duration,
         settings: {
           join_before_host: true,
           waiting_room: false,
