@@ -40,6 +40,10 @@ export default {
           DEFAULT: "#f1f5f9",
           foreground: "#64748b",
         },
+        popover: {
+          DEFAULT: "#ffffff",
+          foreground: "hsl(var(--popover-foreground))",
+        },
       },
       keyframes: {
         "fade-up": {
