@@ -9,6 +9,7 @@ interface FormData {
   date: string;
   duration: number;
   attendees: string;
+  location: string;
 }
 
 interface MeetingFormFieldsProps {
@@ -65,6 +66,19 @@ export const MeetingFormFields = ({ form }: MeetingFormFieldsProps) => {
             <FormLabel>Duration (minutes)</FormLabel>
             <FormControl>
               <Input {...field} type="number" min="15" step="15" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="location"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Meeting Link</FormLabel>
+            <FormControl>
+              <Input {...field} type="url" placeholder="https://zoom.us/j/123456789" />
             </FormControl>
             <FormMessage />
           </FormItem>

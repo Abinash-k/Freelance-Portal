@@ -37,6 +37,7 @@ interface FormData {
   date: string;
   duration: number;
   attendees: string;
+  location: string;
 }
 
 export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProps) => {
@@ -53,6 +54,7 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
         date: new Date(meeting.date).toISOString().slice(0, 16),
         duration: meeting.duration,
         attendees: meeting.attendees.join(", "),
+        location: meeting.location || "",
       });
     } else {
       form.reset({
@@ -61,6 +63,7 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
         date: "",
         duration: 30,
         attendees: "",
+        location: "",
       });
     }
   }, [meeting, form]);
@@ -72,36 +75,35 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("No user found");
 
+        const meetingData = {
+          title: data.title,
+          description: data.description,
+          date: new Date(data.date).toISOString(),
+          duration: Number(data.duration),
+          attendees: data.attendees.split(",").map((email) => email.trim()),
+          location: data.location,
+          user_id: user.id,
+        };
+
         if (meeting) {
           // Update existing meeting
           const { error } = await supabase
             .from("meetings")
-            .update({
-              title: data.title,
-              description: data.description,
-              date: new Date(data.date).toISOString(),
-              duration: Number(data.duration),
-              attendees: data.attendees.split(",").map((email) => email.trim()),
-            })
+            .update(meetingData)
             .eq("id", meeting.id);
 
           if (error) throw error;
           return meeting;
         } else {
-          // Create new meeting via edge function
-          const { data: meetingData, error } = await supabase.functions.invoke('create-meeting', {
-            body: {
-              title: data.title,
-              description: data.description,
-              date: new Date(data.date).toISOString(),
-              duration: Number(data.duration),
-              attendees: data.attendees.split(",").map((email) => email.trim()),
-              user_id: user.id,
-            },
-          });
+          // Create new meeting
+          const { data: newMeeting, error } = await supabase
+            .from("meetings")
+            .insert([meetingData])
+            .select()
+            .single();
 
           if (error) throw error;
-          return meetingData;
+          return newMeeting;
         }
       } catch (error) {
         console.error("Error processing meeting:", error);
@@ -111,9 +113,7 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
     onSuccess: () => {
       toast({
         title: "Success",
-        description: `Meeting ${meeting ? "updated" : "scheduled"} successfully.${
-          !meeting ? " Invites have been sent." : ""
-        }`,
+        description: `Meeting ${meeting ? "updated" : "created"} successfully.`,
       });
       onOpenChange(false);
       form.reset();
@@ -123,7 +123,7 @@ export const MeetingDialog = ({ open, onOpenChange, meeting }: MeetingDialogProp
       console.error("Error:", error);
       toast({
         title: "Error",
-        description: `Failed to ${meeting ? "update" : "schedule"} meeting`,
+        description: `Failed to ${meeting ? "update" : "create"} meeting`,
         variant: "destructive",
       });
     },
