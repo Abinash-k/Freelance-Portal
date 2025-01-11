@@ -24,11 +24,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { ContractDialog } from "./ContractDialog";
 import { format } from "date-fns";
 import { FileText, Download, Trash } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export const ContractsTable = ({ contracts, onContractUpdated }: any) => {
   const [editingContract, setEditingContract] = useState<any>(null);
   const [deletingContract, setDeletingContract] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const { data: businessDetails } = useQuery({
+    queryKey: ["businessDetails"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data, error } = await supabase
+        .from("business_details")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handleDelete = async () => {
     if (!deletingContract) return;
@@ -58,14 +76,21 @@ export const ContractsTable = ({ contracts, onContractUpdated }: any) => {
     }
   };
 
-  const generateContractTemplate = (contract: any) => {
+  const generateContractTemplate = async (contract: any) => {
     const template = `
 CONTRACT AGREEMENT
 
 Between:
 ${contract.client_name} ("Client")
 and
-[Your Company Name] ("Service Provider")
+${businessDetails?.business_name || "[Your Company Name]"} ("Service Provider")
+
+Service Provider Details:
+Company: ${businessDetails?.business_name || "[Company Name]"}
+Email: ${businessDetails?.email || "[Email]"}
+Phone: ${businessDetails?.phone || "[Phone]"}
+Address: ${businessDetails?.address || "[Address]"}
+Website: ${businessDetails?.website || "[Website]"}
 
 Project: ${contract.project_name}
 
@@ -90,7 +115,7 @@ Client Name: ${contract.client_name}
 Date:
 
 _______________________
-Service Provider Name:
+Service Provider: ${businessDetails?.business_name || "[Your Company Name]"}
 Date:
     `;
 
