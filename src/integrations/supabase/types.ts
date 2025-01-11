@@ -13,7 +13,9 @@ export type Database = {
         Row: {
           address: string | null
           business_name: string
+          country: string | null
           created_at: string
+          currency_code: string | null
           email: string | null
           id: string
           phone: string | null
@@ -24,7 +26,9 @@ export type Database = {
         Insert: {
           address?: string | null
           business_name: string
+          country?: string | null
           created_at?: string
+          currency_code?: string | null
           email?: string | null
           id?: string
           phone?: string | null
@@ -35,7 +39,9 @@ export type Database = {
         Update: {
           address?: string | null
           business_name?: string
+          country?: string | null
           created_at?: string
+          currency_code?: string | null
           email?: string | null
           id?: string
           phone?: string | null

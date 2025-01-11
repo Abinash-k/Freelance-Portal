@@ -9,10 +9,29 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
+
+// List of countries with their currency codes
+const countries = [
+  { name: "United States", code: "US", currency: "USD" },
+  { name: "United Kingdom", code: "GB", currency: "GBP" },
+  { name: "European Union", code: "EU", currency: "EUR" },
+  { name: "Japan", code: "JP", currency: "JPY" },
+  { name: "Canada", code: "CA", currency: "CAD" },
+  { name: "Australia", code: "AU", currency: "AUD" },
+  { name: "India", code: "IN", currency: "INR" },
+  // Add more countries as needed
+];
 
 interface BusinessDetailsFormData {
   business_name: string;
@@ -20,6 +39,8 @@ interface BusinessDetailsFormData {
   phone: string;
   website: string;
   address: string;
+  country: string;
+  currency_code: string;
 }
 
 export const BusinessDetailsForm = () => {
@@ -69,6 +90,14 @@ export const BusinessDetailsForm = () => {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleCountryChange = (value: string) => {
+    const selectedCountry = countries.find(country => country.name === value);
+    if (selectedCountry) {
+      form.setValue("country", value);
+      form.setValue("currency_code", selectedCountry.currency);
     }
   };
 
@@ -141,6 +170,43 @@ export const BusinessDetailsForm = () => {
               <FormLabel>Address</FormLabel>
               <FormControl>
                 <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="country"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Country</FormLabel>
+              <Select onValueChange={handleCountryChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a country" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {countries.map((country) => (
+                    <SelectItem key={country.code} value={country.name}>
+                      {country.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="currency_code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Currency</FormLabel>
+              <FormControl>
+                <Input {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
