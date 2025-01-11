@@ -114,6 +114,60 @@ export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
     }
   };
 
+  const generateInvoiceText = async (invoice: any) => {
+    try {
+      if (!businessDetails) {
+        toast({
+          title: "Business details missing",
+          description: "Please add your business details in the settings page first.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const template = `
+INVOICE
+
+From:
+${businessDetails.business_name}
+${businessDetails.address || ""}
+${businessDetails.email || ""}
+${businessDetails.phone || ""}
+${businessDetails.website || ""}
+
+To:
+${invoice.client_name}
+
+Invoice Details:
+Invoice Number: ${invoice.invoice_number}
+Issue Date: ${format(new Date(invoice.issue_date), "PP")}
+Due Date: ${format(new Date(invoice.due_date), "PP")}
+Status: ${invoice.status}
+
+Amount Due: $${invoice.amount.toFixed(2)}
+
+Thank you for your business!
+      `;
+      
+      const blob = new Blob([template], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `invoice-${invoice.invoice_number}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error("Error generating text file:", error);
+      toast({
+        title: "Error generating text file",
+        description: "There was an error generating the text file. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="rounded-md border">
@@ -150,6 +204,7 @@ export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
                   <InvoiceActions
                     onEdit={() => setEditingInvoice(invoice)}
                     onPrint={() => generateInvoicePDF(invoice)}
+                    onDownloadText={() => generateInvoiceText(invoice)}
                     onDelete={() => setDeletingInvoiceId(invoice.id)}
                   />
                 </TableCell>
