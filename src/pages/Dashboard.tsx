@@ -84,18 +84,18 @@ const Dashboard = () => {
       <SidebarProvider>
         <div className="flex min-h-screen w-full pt-16">
           <DashboardSidebar />
-          <main className="flex-1 p-6">
-            <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+          <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
+            <h1 className="text-2xl md:text-3xl font-bold mb-6">Dashboard</h1>
             <KPICards kpiData={kpiData} />
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
               <div className="lg:col-span-2">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold">Active Projects</h2>
+                <div className="flex justify-between items-center mb-4 md:mb-6">
+                  <h2 className="text-lg md:text-xl font-semibold">Active Projects</h2>
                 </div>
                 <ProjectsList />
               </div>
-              <div>
+              <div className="w-full">
                 <TimeTracker />
               </div>
             </div>

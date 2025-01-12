@@ -21,7 +21,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl md:text-6xl font-bold mb-6 tracking-tight"
+          className="text-3xl md:text-6xl font-bold mb-6 tracking-tight px-4 md:px-0"
         >
           Your All-in-One <br className="hidden md:block" />
           Freelance Business Hub
@@ -30,7 +30,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto"
+          className="text-base md:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto px-4 md:px-0"
         >
           Manage clients, track time, send invoices, and grow your freelance business
           with our comprehensive platform designed specifically for independent professionals.
@@ -39,16 +39,16 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex flex-col sm:flex-row gap-4 justify-center px-4 md:px-0"
         >
           <Button 
             size="lg" 
-            className="bg-accent hover:bg-accent/90"
+            className="bg-accent hover:bg-accent/90 w-full sm:w-auto"
             onClick={() => navigate('/signin')}
           >
             Get Started
           </Button>
-          <Button size="lg" variant="outline">
+          <Button size="lg" variant="outline" className="w-full sm:w-auto">
             Learn More
           </Button>
         </motion.div>
