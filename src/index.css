@@ -36,16 +36,16 @@
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 262 83% 58%;  /* Updated to match home page primary color #9b87f5 */
+    --sidebar-primary: 187 83% 57%;  /* Updated to match home page primary color #33C3F0 */
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 262 83% 96%;   /* Light purple for hover states */
+    --sidebar-accent: 187 83% 96%;   /* Light teal for hover states */
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 262 83% 58%;     /* Matching primary color */
+    --sidebar-ring: 187 83% 57%;     /* Matching primary color */
 
     /* New success toast colors */
-    --success-background: 262 60% 95%; /* Light purple for success messages #D6BCFA */
-    --success-foreground: 262 83% 58%; /* Primary purple for text */
+    --success-background: 187 60% 95%; /* Light teal for success messages #B3E6F2 */
+    --success-foreground: 187 83% 57%; /* Primary teal for text */
 
     /* Form colors */
     --form-background: 0 0% 95%;      /* Very light gray for forms #F1F1F1 */
@@ -82,12 +82,12 @@
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary: 187 83% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 262 83% 20%;
+    --sidebar-accent: 187 83% 20%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-ring: 187 83% 57%;
   }
 }
 
@@ -113,11 +113,11 @@
 
   /* Success toast styles */
   .success-toast {
-    @apply bg-[#D6BCFA] text-[#9b87f5];
+    @apply bg-[#B3E6F2] text-[#33C3F0];
   }
 
   /* Sidebar hover styles */
   .sidebar-item:hover {
-    @apply bg-[#9b87f5] bg-opacity-10 text-[#9b87f5];
+    @apply bg-[#33C3F0] bg-opacity-10 text-[#33C3F0];
   }
 }
