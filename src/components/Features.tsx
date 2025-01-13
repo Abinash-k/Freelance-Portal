@@ -58,7 +58,7 @@ export const Features = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
             >
-              <feature.icon className="w-8 md:w-12 h-8 md:h-12 text-accent mb-4" />
+              <feature.icon className="w-8 md:w-12 h-8 md:h-12 text-[#D6BCFA] mb-4" />
               <h3 className="text-lg md:text-xl font-semibold mb-2">{feature.title}</h3>
               <p className="text-sm md:text-base text-muted-foreground">{feature.description}</p>
             </motion.div>
