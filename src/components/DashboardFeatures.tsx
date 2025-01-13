@@ -4,7 +4,7 @@ import {
   FileText,
   Calendar,
   Users,
-  FileContract,
+  ScrollText,
   Receipt,
 } from "lucide-react";
 
@@ -38,7 +38,7 @@ const features = [
   {
     title: "Contract Templates",
     description: "Access and customize professional contract templates.",
-    icon: FileContract,
+    icon: ScrollText,
     href: "/contracts",
   },
   {
