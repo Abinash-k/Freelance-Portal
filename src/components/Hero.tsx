@@ -21,7 +21,7 @@ export const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-3xl md:text-6xl font-bold mb-6 tracking-tight px-4 md:px-0"
+          className="text-3xl md:text-6xl font-bold mb-6 tracking-tight px-4 md:px-0 text-primary"
         >
           Your All-in-One <br className="hidden md:block" />
           Freelance Business Hub
@@ -43,7 +43,7 @@ export const Hero = () => {
         >
           <Button 
             size="lg" 
-            className="bg-accent hover:bg-accent/90 w-full sm:w-auto"
+            className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto"
             onClick={() => navigate('/signin')}
           >
             Get Started

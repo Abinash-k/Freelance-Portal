@@ -34,7 +34,7 @@ export const Pricing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-3xl font-bold mb-4"
+            className="text-3xl font-bold mb-4 text-primary"
           >
             Simple, Transparent Pricing
           </motion.h2>
@@ -58,7 +58,7 @@ export const Pricing = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className={`p-8 rounded-xl ${
                 plan.popular 
-                  ? "bg-accent text-white ring-2 ring-accent" 
+                  ? "bg-primary text-white ring-2 ring-primary" 
                   : "bg-white shadow-sm"
               }`}
             >
@@ -81,8 +81,8 @@ export const Pricing = () => {
               <Button 
                 className={`w-full ${
                   plan.popular 
-                    ? "bg-white text-accent hover:bg-white/90" 
-                    : "bg-accent text-white hover:bg-accent/90"
+                    ? "bg-white text-primary hover:bg-white/90" 
+                    : "bg-primary text-white hover:bg-primary/90"
                 }`}
               >
                 Get Started
