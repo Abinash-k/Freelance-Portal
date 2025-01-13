@@ -75,7 +75,7 @@ export const DashboardFeatures = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="p-6 bg-secondary rounded-xl shadow-sm hover:shadow-md transition-shadow"
             >
-              <feature.icon className="w-12 h-12 text-accent mb-4" />
+              <feature.icon className="w-12 h-12 text-purple-400 mb-4" />
               <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
               <p className="text-muted-foreground">{feature.description}</p>
             </motion.div>
