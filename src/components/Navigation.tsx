@@ -12,7 +12,7 @@ export const Navigation = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-xl font-bold text-primary"
+            className="text-xl font-bold text-[#33C3F0]"
           >
             FreelanceHub
           </motion.div>
