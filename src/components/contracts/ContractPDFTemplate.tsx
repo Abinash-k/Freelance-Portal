@@ -57,11 +57,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     flex: 2,
   },
-  amount: {
-    fontSize: 10,
-    textAlign: "right",
-    width: 80,
-  },
   total: {
     flexDirection: "row",
     justifyContent: "flex-end",
@@ -93,8 +88,8 @@ interface BusinessDetails {
 
 interface ContractPDFTemplateProps {
   contract: {
-    client_name: string;
     project_name: string;
+    client_name: string;
     start_date: string;
     end_date: string;
     value: number;
@@ -139,20 +134,23 @@ export const ContractPDFTemplate = ({
           <Text style={styles.label}>Client:</Text>
           <Text style={styles.value}>{contract.client_name}</Text>
         </View>
+      </View>
+
+      <View style={styles.section}>
         <View style={styles.row}>
-          <Text style={styles.label}>Project:</Text>
+          <Text style={styles.label}>Project Name:</Text>
           <Text style={styles.value}>{contract.project_name}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Start Date:</Text>
           <Text style={styles.value}>
-            {format(new Date(contract.start_date), "PP")}
+            {format(new Date(contract.start_date), "MM/dd/yyyy")}
           </Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>End Date:</Text>
           <Text style={styles.value}>
-            {format(new Date(contract.end_date), "PP")}
+            {format(new Date(contract.end_date), "MM/dd/yyyy")}
           </Text>
         </View>
         <View style={styles.row}>
