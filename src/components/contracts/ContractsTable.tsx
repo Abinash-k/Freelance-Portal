@@ -23,8 +23,10 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ContractDialog } from "./ContractDialog";
 import { format } from "date-fns";
-import { FileText, Download, Trash } from "lucide-react";
+import { FileText, Download, Trash, FileDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { pdf } from "@react-pdf/renderer";
+import { ContractPDFTemplate } from "./ContractPDFTemplate";
 
 export const ContractsTable = ({ contracts, onContractUpdated }: any) => {
   const [editingContract, setEditingContract] = useState<any>(null);
@@ -130,6 +132,42 @@ Date:
     URL.revokeObjectURL(url);
   };
 
+  const generateContractPDF = async (contract: any) => {
+    try {
+      if (!businessDetails) {
+        toast({
+          title: "Business details missing",
+          description: "Please add your business details in the settings page first.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const blob = await pdf(
+        <ContractPDFTemplate
+          contract={contract}
+          businessDetails={businessDetails}
+        />
+      ).toBlob();
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `contract-${contract.client_name}-${format(new Date(contract.start_date), "yyyy-MM-dd")}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error generating PDF",
+        description: "There was an error generating the PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "draft":
@@ -192,6 +230,13 @@ Date:
                   onClick={() => generateContractTemplate(contract)}
                 >
                   <Download className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generateContractPDF(contract)}
+                >
+                  <FileDown className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
