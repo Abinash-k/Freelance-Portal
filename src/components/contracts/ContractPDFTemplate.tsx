@@ -9,10 +9,10 @@ import {
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
-// Updated font URL to latest version
+// Register font with a more reliable Google Fonts URL
 Font.register({
   family: "Dancing Script",
-  src: "https://fonts.gstatic.com/s/dancingscript/v25/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSo3ROp6.ttf",
+  src: "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap",
 });
 
 const styles = StyleSheet.create({
