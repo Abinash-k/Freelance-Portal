@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Table,
@@ -22,8 +23,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { InvoiceDialog } from "./InvoiceDialog";
 import { format } from "date-fns";
-import { pdf } from "@react-pdf/renderer";
-import { InvoicePDFTemplate } from "./InvoicePDFTemplate";
 import { useQuery } from "@tanstack/react-query";
 import { getStatusColor } from "./utils";
 import { InvoiceActions } from "./InvoiceActions";
@@ -89,15 +88,24 @@ export const InvoicesTable = ({ invoices, onInvoiceUpdated }: any) => {
         return;
       }
 
-      const blob = await pdf(
-        <InvoicePDFTemplate
-          invoice={invoice}
-          businessDetails={businessDetails}
-        />
-      ).toBlob();
-      
+      const { data, error } = await supabase.functions.invoke('generate-pdf', {
+        body: {
+          documentType: 'invoice',
+          documentData: {
+            ...invoice,
+            businessDetails,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      // Create a Blob from the PDF data
+      const blob = new Blob([data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      
+      // Create a link and trigger the download
+      const link = document.createElement('a');
       link.href = url;
       link.download = `invoice-${invoice.invoice_number}.pdf`;
       document.body.appendChild(link);
