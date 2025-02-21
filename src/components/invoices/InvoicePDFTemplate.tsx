@@ -10,10 +10,18 @@ import {
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
-// Register font with a more reliable Google Fonts URL
+// Register a standard font that's available in PDF by default
 Font.register({
-  family: "Dancing Script",
-  src: "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap",
+  family: "Helvetica",
+  fonts: [
+    {
+      src: "Helvetica",
+    },
+    {
+      src: "Helvetica-Bold",
+      fontWeight: "bold",
+    },
+  ]
 });
 
 const styles = StyleSheet.create({
@@ -31,6 +39,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 40,
+    fontFamily: "Helvetica",
     fontWeight: "bold",
     color: "#1a1a1a",
   },
@@ -39,12 +48,13 @@ const styles = StyleSheet.create({
   },
   businessName: {
     fontSize: 24,
-    fontFamily: "Dancing Script",
+    fontFamily: "Helvetica",
     marginBottom: 8,
     color: "#2a2a2a",
   },
   businessDetails: {
     fontSize: 10,
+    fontFamily: "Helvetica",
     color: "#4A5568",
     textAlign: "right",
   },
@@ -53,6 +63,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
+    fontFamily: "Helvetica",
     fontWeight: "bold",
     marginBottom: 10,
     color: "#2a2a2a",
@@ -67,11 +78,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
+    fontFamily: "Helvetica",
     color: "#4A5568",
     width: 120,
   },
   value: {
     fontSize: 11,
+    fontFamily: "Helvetica",
     flex: 1,
     color: "#2a2a2a",
   },
@@ -85,12 +98,14 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 16,
+    fontFamily: "Helvetica",
     fontWeight: "bold",
     marginRight: 20,
     color: "#1a1a1a",
   },
   totalAmount: {
     fontSize: 16,
+    fontFamily: "Helvetica",
     fontWeight: "bold",
     width: 120,
     textAlign: "right",
