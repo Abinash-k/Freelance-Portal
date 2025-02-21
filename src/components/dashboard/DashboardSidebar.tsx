@@ -7,6 +7,7 @@ import {
   HelpCircle,
   DollarSign,
   Calendar,
+  FileText,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,6 +36,11 @@ const menuItems = [
     title: "Leads",
     icon: Users,
     url: "/leads",
+  },
+  {
+    title: "Invoices",
+    icon: FileText,
+    url: "/invoices",
   },
   {
     title: "Expenses",
@@ -83,3 +89,4 @@ export const DashboardSidebar = () => {
     </Sidebar>
   );
 };
+

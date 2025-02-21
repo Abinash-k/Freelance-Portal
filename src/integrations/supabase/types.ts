@@ -130,36 +130,36 @@ export type Database = {
         Row: {
           amount: number
           client_name: string
+          content: string
           created_at: string
           due_date: string
           id: string
-          invoice_number: string
-          issue_date: string
-          status: string | null
+          status: string
+          title: string
           updated_at: string
           user_id: string
         }
         Insert: {
-          amount: number
+          amount?: number
           client_name: string
+          content: string
           created_at?: string
-          due_date: string
+          due_date?: string
           id?: string
-          invoice_number: string
-          issue_date: string
-          status?: string | null
+          status?: string
+          title: string
           updated_at?: string
           user_id: string
         }
         Update: {
           amount?: number
           client_name?: string
+          content?: string
           created_at?: string
           due_date?: string
           id?: string
-          invoice_number?: string
-          issue_date?: string
-          status?: string | null
+          status?: string
+          title?: string
           updated_at?: string
           user_id?: string
         }
