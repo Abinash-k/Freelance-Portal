@@ -30,6 +30,11 @@ const Dashboard = () => {
       change: "+0%",
       isPositive: true
     },
+    hoursTracked: {
+      value: "0h",
+      change: "+0%",
+      isPositive: true
+    },
     pendingInvoices: {
       value: "0",
       change: "0%",
@@ -39,11 +44,6 @@ const Dashboard = () => {
       value: "0",
       change: "+8.1%",
       isPositive: true
-    },
-    monthlyExpenses: {
-      value: "$0",
-      change: "+4.2%",
-      isPositive: false
     }
   };
 
