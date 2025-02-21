@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,8 +10,6 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import LeadsPage from "./pages/leads";
-import InvoicesPage from "./pages/invoices";
-import ContractsPage from "./pages/contracts";
 import MeetingsPage from "./pages/meetings";
 import ExpensesPage from "./pages/expenses";
 import SettingsPage from "./pages/settings";
@@ -65,22 +64,6 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <LeadsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/invoices"
-            element={
-              <ProtectedRoute>
-                <InvoicesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/contracts"
-            element={
-              <ProtectedRoute>
-                <ContractsPage />
               </ProtectedRoute>
             }
           />

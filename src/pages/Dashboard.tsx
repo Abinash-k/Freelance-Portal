@@ -1,3 +1,4 @@
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Navigation } from "@/components/Navigation";
 import { KPICards } from "@/components/dashboard/KPICards";
@@ -22,40 +23,10 @@ const Dashboard = () => {
     getUserId();
   }, []);
 
-  // Fetch user's contracts
-  const { data: contracts } = useQuery({
-    queryKey: ['contracts', userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('contracts')
-        .select('*')
-        .eq('user_id', userId);
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!userId
-  });
-
-  // Fetch user's invoices
-  const { data: invoices } = useQuery({
-    queryKey: ['invoices', userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('user_id', userId);
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!userId
-  });
-
   // Calculate KPI data based on user's data
   const kpiData = {
-    totalRevenue: {
-      value: `$${invoices?.reduce((sum, inv) => sum + Number(inv.amount), 0).toLocaleString() || '0'}`,
+    totalProjects: {
+      value: "0",
       change: "+12.5%",
       isPositive: true
     },
@@ -64,19 +35,17 @@ const Dashboard = () => {
       change: "-2.3%",
       isPositive: false
     },
-    pendingInvoices: {
-      value: invoices?.filter(inv => inv.status === 'pending')?.length.toString() || '0',
+    activeLeads: {
+      value: "0",
       change: "+8.1%",
       isPositive: true
     },
-    activeProjects: {
-      value: contracts?.filter(contract => contract.status === 'active')?.length.toString() || '0',
+    monthlyExpenses: {
+      value: "$0",
       change: "+4.2%",
-      isPositive: true
+      isPositive: false
     }
   };
-
-  console.log("Rendered dashboard with contracts:", contracts);
 
   return (
     <div className="min-h-screen bg-background">

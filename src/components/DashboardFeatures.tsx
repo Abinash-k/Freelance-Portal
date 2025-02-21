@@ -1,10 +1,9 @@
+
 import { motion } from "framer-motion";
 import {
   ClipboardList,
-  FileText,
   Calendar,
   Users,
-  ScrollText,
   Receipt,
 } from "lucide-react";
 
@@ -17,13 +16,6 @@ const features = [
     href: "/dashboard",
   },
   {
-    title: "Invoice Generation",
-    description:
-      "Create and manage professional invoices with automated calculations.",
-    icon: FileText,
-    href: "/invoices",
-  },
-  {
     title: "Meeting Scheduler",
     description: "Schedule and manage client meetings with automated reminders.",
     icon: Calendar,
@@ -34,12 +26,6 @@ const features = [
     description: "Track and nurture potential client relationships effectively.",
     icon: Users,
     href: "/leads",
-  },
-  {
-    title: "Contract Templates",
-    description: "Access and customize professional contract templates.",
-    icon: ScrollText,
-    href: "/contracts",
   },
   {
     title: "Expense Tracking",
@@ -62,7 +48,7 @@ export const DashboardFeatures = () => {
             place.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
