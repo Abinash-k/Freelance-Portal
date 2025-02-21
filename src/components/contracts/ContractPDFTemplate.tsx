@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Document,
@@ -17,64 +18,83 @@ Font.register({
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
-    backgroundColor: "#FFF5F5",
+    padding: 50,
+    backgroundColor: "#FFFFFF",
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     marginBottom: 40,
   },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
   title: {
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: "bold",
+    color: "#1a1a1a",
+  },
+  businessInfo: {
+    alignItems: "flex-end",
   },
   businessName: {
     fontSize: 24,
     fontFamily: "Dancing Script",
     marginBottom: 8,
+    color: "#2a2a2a",
   },
   businessDetails: {
     fontSize: 10,
     color: "#4A5568",
+    textAlign: "right",
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 30,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#2a2a2a",
+    textTransform: "uppercase",
   },
   row: {
     flexDirection: "row",
-    justifyContent: "space-between",
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#E2E8F0",
+    marginBottom: 8,
   },
   label: {
-    fontSize: 10,
+    fontSize: 11,
     color: "#4A5568",
-    flex: 1,
+    width: 120,
   },
   value: {
-    fontSize: 10,
-    flex: 2,
+    fontSize: 11,
+    flex: 1,
+    color: "#2a2a2a",
   },
   total: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginTop: 20,
-    paddingTop: 8,
+    marginTop: 30,
+    paddingTop: 15,
     borderTopWidth: 2,
-    borderTopColor: "#000",
+    borderTopColor: "#2a2a2a",
   },
   totalLabel: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: "bold",
     marginRight: 20,
+    color: "#1a1a1a",
   },
   totalAmount: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: "bold",
-    width: 80,
+    width: 120,
     textAlign: "right",
+    color: "#1a1a1a",
   },
 });
 
@@ -105,22 +125,23 @@ export const ContractPDFTemplate = ({
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerTop}>
           <Text style={styles.title}>CONTRACT</Text>
-        </View>
-        <View>
-          <Text style={styles.businessName}>{businessDetails.business_name}</Text>
-          <Text style={styles.businessDetails}>{businessDetails.address}</Text>
+          <View style={styles.businessInfo}>
+            <Text style={styles.businessName}>{businessDetails.business_name}</Text>
+            <Text style={styles.businessDetails}>{businessDetails.address}</Text>
+          </View>
         </View>
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Business Information</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Business Email:</Text>
+          <Text style={styles.label}>Email:</Text>
           <Text style={styles.value}>{businessDetails.email}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Phone number:</Text>
+          <Text style={styles.label}>Phone:</Text>
           <Text style={styles.value}>{businessDetails.phone}</Text>
         </View>
         <View style={styles.row}>
@@ -130,6 +151,7 @@ export const ContractPDFTemplate = ({
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Client Information</Text>
         <View style={styles.row}>
           <Text style={styles.label}>Client:</Text>
           <Text style={styles.value}>{contract.client_name}</Text>
@@ -137,6 +159,7 @@ export const ContractPDFTemplate = ({
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Project Details</Text>
         <View style={styles.row}>
           <Text style={styles.label}>Project Name:</Text>
           <Text style={styles.value}>{contract.project_name}</Text>
@@ -144,13 +167,13 @@ export const ContractPDFTemplate = ({
         <View style={styles.row}>
           <Text style={styles.label}>Start Date:</Text>
           <Text style={styles.value}>
-            {format(new Date(contract.start_date), "MM/dd/yyyy")}
+            {format(new Date(contract.start_date), "MMMM dd, yyyy")}
           </Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>End Date:</Text>
           <Text style={styles.value}>
-            {format(new Date(contract.end_date), "MM/dd/yyyy")}
+            {format(new Date(contract.end_date), "MMMM dd, yyyy")}
           </Text>
         </View>
         <View style={styles.row}>
@@ -166,3 +189,4 @@ export const ContractPDFTemplate = ({
     </Page>
   </Document>
 );
+
