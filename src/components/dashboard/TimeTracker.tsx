@@ -1,3 +1,4 @@
+
 import { Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ProjectDialog } from "./ProjectDialog";
 
 interface TimeTrackerFormValues {
-  project_id: string;
   description: string;
 }
 
@@ -33,19 +33,6 @@ export const TimeTracker = () => {
     getUserId();
   }, []);
 
-  const { data: projects, isLoading } = useQuery({
-    queryKey: ['projects'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
   const handleStartTimer = async (values: TimeTrackerFormValues) => {
     if (!userId) {
       toast({
@@ -56,10 +43,10 @@ export const TimeTracker = () => {
       return;
     }
 
-    if (!values.project_id || !values.description) {
+    if (!values.description) {
       toast({
         title: "Error",
-        description: "Please select a project and add a description",
+        description: "Please add a description",
         variant: "destructive",
       });
       return;
@@ -72,7 +59,6 @@ export const TimeTracker = () => {
     const { error } = await supabase
       .from('time_entries')
       .insert({
-        project_id: values.project_id,
         description: values.description,
         start_time: now.toISOString(),
         user_id: userId
@@ -129,10 +115,6 @@ export const TimeTracker = () => {
     });
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -143,30 +125,6 @@ export const TimeTracker = () => {
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleStartTimer)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="project_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Project</FormLabel>
-                    <FormControl>
-                      <select
-                        className="w-full border rounded-md p-2"
-                        {...field}
-                        disabled={isTracking}
-                      >
-                        <option value="">Select a project</option>
-                        {projects?.map((project) => (
-                          <option key={project.id} value={project.id}>
-                            {project.name}
-                          </option>
-                        ))}
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="description"

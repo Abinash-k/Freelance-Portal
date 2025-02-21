@@ -25,17 +25,17 @@ const Dashboard = () => {
 
   // Calculate KPI data based on user's data
   const kpiData = {
-    totalProjects: {
-      value: "0",
-      change: "+12.5%",
+    totalRevenue: {
+      value: "$0",
+      change: "+0%",
       isPositive: true
     },
-    hoursTracked: {
-      value: "164h",
-      change: "-2.3%",
-      isPositive: false
+    pendingInvoices: {
+      value: "0",
+      change: "0%",
+      isPositive: true
     },
-    activeLeads: {
+    activeProjects: {
       value: "0",
       change: "+8.1%",
       isPositive: true

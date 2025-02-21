@@ -1,11 +1,10 @@
+
 import {
   LayoutDashboard,
   Clock,
-  FileText,
   Users,
   Settings,
   HelpCircle,
-  File,
   DollarSign,
   Calendar,
 } from "lucide-react";
@@ -33,11 +32,6 @@ const menuItems = [
     url: "/time-tracking",
   },
   {
-    title: "Contracts",
-    icon: File,
-    url: "/contracts",
-  },
-  {
     title: "Leads",
     icon: Users,
     url: "/leads",
@@ -51,11 +45,6 @@ const menuItems = [
     title: "Meetings",
     icon: Calendar,
     url: "/meetings",
-  },
-  {
-    title: "Invoices",
-    icon: FileText,
-    url: "/invoices",
   },
   {
     title: "Settings",
