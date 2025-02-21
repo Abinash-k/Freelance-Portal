@@ -51,45 +51,6 @@ export type Database = {
         }
         Relationships: []
       }
-      contracts: {
-        Row: {
-          client_name: string
-          created_at: string
-          end_date: string | null
-          id: string
-          project_name: string
-          start_date: string | null
-          status: string | null
-          updated_at: string
-          user_id: string
-          value: number | null
-        }
-        Insert: {
-          client_name: string
-          created_at?: string
-          end_date?: string | null
-          id?: string
-          project_name: string
-          start_date?: string | null
-          status?: string | null
-          updated_at?: string
-          user_id: string
-          value?: number | null
-        }
-        Update: {
-          client_name?: string
-          created_at?: string
-          end_date?: string | null
-          id?: string
-          project_name?: string
-          start_date?: string | null
-          status?: string | null
-          updated_at?: string
-          user_id?: string
-          value?: number | null
-        }
-        Relationships: []
-      }
       expenses: {
         Row: {
           amount: number
@@ -121,45 +82,6 @@ export type Database = {
           description?: string
           id?: string
           receipt_url?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      invoices: {
-        Row: {
-          amount: number
-          client_name: string
-          created_at: string
-          due_date: string
-          id: string
-          invoice_number: string
-          issue_date: string
-          status: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          client_name: string
-          created_at?: string
-          due_date: string
-          id?: string
-          invoice_number: string
-          issue_date: string
-          status?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          client_name?: string
-          created_at?: string
-          due_date?: string
-          id?: string
-          invoice_number?: string
-          issue_date?: string
-          status?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -311,50 +233,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      time_entries: {
-        Row: {
-          created_at: string
-          description: string
-          duration: number | null
-          end_time: string | null
-          id: string
-          project_id: string
-          start_time: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          duration?: number | null
-          end_time?: string | null
-          id?: string
-          project_id: string
-          start_time: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          duration?: number | null
-          end_time?: string | null
-          id?: string
-          project_id?: string
-          start_time?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "time_entries_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "contracts"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
