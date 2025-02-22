@@ -71,8 +71,10 @@ export const InvoiceForm = () => {
 
       if (error) throw error;
 
-      // Create a download link for the PDF
+      // Create a Blob from the response data
       const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+      
+      // Create a download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
