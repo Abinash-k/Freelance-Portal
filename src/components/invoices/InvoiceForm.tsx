@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -30,6 +31,7 @@ export const InvoiceForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -42,6 +44,47 @@ export const InvoiceForm = () => {
     };
     checkUser();
   }, [navigate]);
+
+  const generatePDF = async (invoiceId: number) => {
+    try {
+      setIsGeneratingPDF(true);
+      const { data, error } = await supabase.functions.invoke('generate-pdf', {
+        body: {
+          documentType: 'invoice',
+          documentData: {
+            invoice_id: invoiceId
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      // Create a download link for the PDF
+      const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice-${invoiceId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "PDF generated successfully",
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,15 +108,15 @@ export const InvoiceForm = () => {
         return;
       }
 
-      const { error } = await supabase.from("invoices").insert({
+      const { data, error } = await supabase.from("invoices").insert({
         title: values.title,
         client_name: values.client_name,
         amount: parseFloat(values.amount),
         content: values.content,
         due_date: values.due_date,
         user_id: userId,
-        status: "draft" // Using the default status from the schema
-      });
+        status: "draft"
+      }).select().single();
 
       if (error) throw error;
 
@@ -81,6 +124,11 @@ export const InvoiceForm = () => {
         title: "Success",
         description: "Invoice created successfully",
       });
+
+      // Generate PDF for the newly created invoice
+      if (data) {
+        await generatePDF(data.id);
+      }
       
       navigate("/invoices");
     } catch (error) {
@@ -183,9 +231,15 @@ export const InvoiceForm = () => {
           >
             Cancel
           </Button>
-          <Button type="submit">Create Invoice</Button>
+          <Button 
+            type="submit"
+            disabled={isGeneratingPDF}
+          >
+            {isGeneratingPDF ? "Generating..." : "Create Invoice"}
+          </Button>
         </div>
       </form>
     </Form>
   );
 };
+
