@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -28,6 +29,19 @@ const formSchema = z.object({
 export const InvoiceForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+      setUserId(user.id);
+    };
+    checkUser();
+  }, [navigate]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,15 +56,24 @@ export const InvoiceForm = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const { error } = await supabase.from("invoices").insert([
-        {
-          title: values.title,
-          client_name: values.client_name,
-          amount: parseFloat(values.amount),
-          content: values.content,
-          due_date: values.due_date,
-        },
-      ]);
+      if (!userId) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create an invoice",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.from("invoices").insert({
+        title: values.title,
+        client_name: values.client_name,
+        amount: parseFloat(values.amount),
+        content: values.content,
+        due_date: values.due_date,
+        user_id: userId,
+        status: "draft" // Using the default status from the schema
+      });
 
       if (error) throw error;
 
