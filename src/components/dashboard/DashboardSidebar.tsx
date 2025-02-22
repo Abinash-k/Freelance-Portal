@@ -40,7 +40,7 @@ const menuItems = [
   {
     title: "Invoices",
     icon: FileText,
-    url: "/invoices",
+    url: "/invoices/new",
   },
   {
     title: "Expenses",
@@ -89,4 +89,3 @@ export const DashboardSidebar = () => {
     </Sidebar>
   );
 };
-

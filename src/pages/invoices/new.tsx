@@ -12,7 +12,10 @@ const NewInvoicePage = () => {
         <div className="flex min-h-screen w-full pt-16">
           <DashboardSidebar />
           <main className="flex-1 p-4 md:p-6 overflow-x-hidden">
-            <h1 className="text-2xl md:text-3xl font-bold mb-6">New Invoice</h1>
+            <div className="mb-6">
+              <h1 className="text-2xl md:text-3xl font-bold">Create New Invoice</h1>
+              <p className="text-muted-foreground mt-2">Fill out the form below to generate a new invoice.</p>
+            </div>
             <div className="max-w-2xl mx-auto">
               <InvoiceForm />
             </div>
@@ -24,3 +27,4 @@ const NewInvoicePage = () => {
 };
 
 export default NewInvoicePage;
+

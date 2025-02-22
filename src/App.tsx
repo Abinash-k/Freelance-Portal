@@ -13,6 +13,7 @@ import LeadsPage from "./pages/leads";
 import MeetingsPage from "./pages/meetings";
 import ExpensesPage from "./pages/expenses";
 import SettingsPage from "./pages/settings";
+import NewInvoicePage from "./pages/invoices/new";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,14 @@ const App = () => (
             }
           />
           <Route
+            path="/invoices/new"
+            element={
+              <ProtectedRoute>
+                <NewInvoicePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="*"
             element={<Navigate to="/dashboard" replace />}
           />
@@ -102,3 +111,4 @@ const App = () => (
 );
 
 export default App;
+
