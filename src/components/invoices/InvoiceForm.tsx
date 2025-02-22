@@ -66,13 +66,14 @@ export const InvoiceForm = () => {
           documentData: {
             invoice_id: invoiceId
           }
-        }
+        },
+        responseType: 'arraybuffer', // Important: specify that we expect binary data
       });
 
       if (error) throw error;
 
-      // Create a Blob from the response data
-      const blob = new Blob([new Uint8Array(data)], { type: 'application/pdf' });
+      // Create a Blob from the binary data
+      const blob = new Blob([data], { type: 'application/pdf' });
       
       // Create a download link
       const url = window.URL.createObjectURL(blob);

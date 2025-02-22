@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { PDFDocument, StandardFonts, rgb } from "https://cdn.skypack.dev/pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,31 +41,95 @@ serve(async (req) => {
       .eq('user_id', invoice.user_id)
       .single();
 
-    // Generate PDF content
-    const pdfContent = `
-      INVOICE
+    // Create a new PDF document
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage();
+    const { width, height } = page.getSize();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-      ${businessDetails ? `
-      ${businessDetails.business_name || ''}
-      ${businessDetails.address || ''}
-      ` : ''}
+    // Add content to the PDF
+    page.drawText('INVOICE', {
+      x: 50,
+      y: height - 50,
+      size: 24,
+      font,
+      color: rgb(0, 0, 0),
+    });
 
-      Bill To:
-      ${invoice.client_name}
+    // Add business details if available
+    let currentY = height - 100;
+    if (businessDetails) {
+      page.drawText(businessDetails.business_name || '', {
+        x: 50,
+        y: currentY,
+        size: 12,
+        font,
+      });
+      currentY -= 20;
+      page.drawText(businessDetails.address || '', {
+        x: 50,
+        y: currentY,
+        size: 12,
+        font,
+      });
+      currentY -= 40;
+    }
 
-      Invoice Details:
-      Title: ${invoice.title}
-      Amount: $${invoice.amount.toFixed(2)}
-      Due Date: ${new Date(invoice.due_date).toLocaleDateString()}
-      Status: ${invoice.status}
+    // Add invoice details
+    page.drawText(`Bill To: ${invoice.client_name}`, {
+      x: 50,
+      y: currentY,
+      size: 12,
+      font,
+    });
+    currentY -= 40;
 
-      Description:
-      ${invoice.content}
-    `;
+    page.drawText(`Invoice Title: ${invoice.title}`, {
+      x: 50,
+      y: currentY,
+      size: 12,
+      font,
+    });
+    currentY -= 20;
 
-    // Convert the text content to a PDF-like format
-    const encoder = new TextEncoder();
-    const pdfBytes = encoder.encode(pdfContent);
+    page.drawText(`Amount: $${invoice.amount.toFixed(2)}`, {
+      x: 50,
+      y: currentY,
+      size: 12,
+      font,
+    });
+    currentY -= 20;
+
+    page.drawText(`Due Date: ${new Date(invoice.due_date).toLocaleDateString()}`, {
+      x: 50,
+      y: currentY,
+      size: 12,
+      font,
+    });
+    currentY -= 40;
+
+    page.drawText('Description:', {
+      x: 50,
+      y: currentY,
+      size: 12,
+      font,
+    });
+    currentY -= 20;
+
+    // Split content into lines for better formatting
+    const contentLines = invoice.content.split('\n');
+    for (const line of contentLines) {
+      page.drawText(line, {
+        x: 50,
+        y: currentY,
+        size: 12,
+        font,
+      });
+      currentY -= 15;
+    }
+
+    // Serialize the PDF document
+    const pdfBytes = await pdfDoc.save();
 
     return new Response(pdfBytes, {
       headers: {
