@@ -27,6 +27,18 @@ const formSchema = z.object({
   due_date: z.string().min(1, "Due date is required"),
 });
 
+// Define the type for our invoice data
+type Invoice = {
+  id: number;
+  title: string;
+  client_name: string;
+  amount: number;
+  content: string;
+  due_date: string;
+  user_id: string;
+  status: string;
+};
+
 export const InvoiceForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -108,15 +120,18 @@ export const InvoiceForm = () => {
         return;
       }
 
-      const { data, error } = await supabase.from("invoices").insert({
-        title: values.title,
-        client_name: values.client_name,
-        amount: parseFloat(values.amount),
-        content: values.content,
-        due_date: values.due_date,
-        user_id: userId,
-        status: "draft"
-      }).select().single();
+      const { data, error } = await supabase.from("invoices")
+        .insert({
+          title: values.title,
+          client_name: values.client_name,
+          amount: parseFloat(values.amount),
+          content: values.content,
+          due_date: values.due_date,
+          user_id: userId,
+          status: "draft"
+        })
+        .select<"invoices", Invoice>()
+        .single();
 
       if (error) throw error;
 
@@ -242,4 +257,3 @@ export const InvoiceForm = () => {
     </Form>
   );
 };
-
