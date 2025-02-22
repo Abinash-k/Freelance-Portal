@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { InvoiceDialog } from "./InvoiceDialog";
 import { FileText, Plus } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 export const InvoicesTable = () => {
+  const navigate = useNavigate();
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -38,7 +40,7 @@ export const InvoicesTable = () => {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Invoices</h2>
-        <Button onClick={() => setIsDialogOpen(true)} size="sm">
+        <Button onClick={() => navigate("/invoices/new")} size="sm">
           <Plus className="h-4 w-4 mr-2" />
           New Invoice
         </Button>
