@@ -60,20 +60,22 @@ export const InvoiceForm = () => {
   const generatePDF = async (invoiceId: number) => {
     try {
       setIsGeneratingPDF(true);
-      const { data, error } = await supabase.functions.invoke('generate-pdf', {
+      const response = await supabase.functions.invoke('generate-pdf', {
         body: {
           documentType: 'invoice',
           documentData: {
             invoice_id: invoiceId
           }
-        },
-        responseType: 'arraybuffer', // Important: specify that we expect binary data
+        }
       });
 
-      if (error) throw error;
+      if (response.error) throw response.error;
 
+      // Get the data as ArrayBuffer
+      const arrayBuffer = await response.data.arrayBuffer();
+      
       // Create a Blob from the binary data
-      const blob = new Blob([data], { type: 'application/pdf' });
+      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
       
       // Create a download link
       const url = window.URL.createObjectURL(blob);
